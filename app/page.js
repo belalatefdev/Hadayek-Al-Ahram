@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "../lib/supabase";
 
 const sampleListings = [
   { id: 1, title: "شقة ١٤٠ متر تشطيب سوبر لوكس", gate: "البوابة الأولى", kind: "شقة", deal: "للبيع", price: 2450000, area: 140, rooms: 3, baths: 2, image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=85", tag: "اختيار مميز" },
@@ -20,16 +21,36 @@ export default function Home() {
   const [maxPrice, setMaxPrice] = useState("");
   const [search, setSearch] = useState("");
   const [favorites, setFavorites] = useState([]);
+  const [listings, setListings] = useState([]);
+  const [loadingListings, setLoadingListings] = useState(true);
+  const [submitError, setSubmitError] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const listings = useMemo(() => sampleListings.filter((p) =>
+  useEffect(() => {
+    let active = true;
+    async function loadListings() {
+      if (!supabase) { setLoadingListings(false); return; }
+      const { data, error } = await supabase.from("listings").select("*").eq("status", "published").order("created_at", { ascending: false });
+      if (active && !error) setListings((data || []).map((p) => ({
+        id: p.id, title: p.title, gate: p.gate || "حدائق الأهرام",
+        kind: p.property_type, deal: p.deal_type === "بيع" ? "للبيع" : "للإيجار",
+        price: Number(p.price), area: Number(p.area || 0), rooms: p.bedrooms || 0,
+        baths: p.bathrooms || 0, image: p.image_urls?.[0] || "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=85", tag: "إعلان معتمد"
+      })));
+      if (active) setLoadingListings(false);
+    }
+    loadListings();
+    return () => { active = false; };
+  }, []);
+
+  const filteredListings = useMemo(() => listings.filter((p) =>
     (deal === "الكل" || p.deal === deal) &&
     (kind === "الكل" || p.kind === kind) &&
     (gate === "كل البوابات" || p.gate === gate) &&
     (!maxPrice || p.price <= Number(maxPrice)) &&
     (p.title + p.gate + p.kind).includes(search.trim())
-  ), [deal, kind, gate, maxPrice, search]);
+  ), [listings, deal, kind, gate, maxPrice, search]);
 
   const toggleFavorite = (id) => setFavorites((old) => old.includes(id) ? old.filter((x) => x !== id) : [...old, id]);
 
@@ -68,14 +89,15 @@ export default function Home() {
       </section>
 
       <section className="wrap listings-section" id="listings">
-        <div className="section-head"><div><span className="eyebrow">اختار صح</span><h2>عقارات مميزة في حدائق الأهرام</h2><p>تصفح أحدث الفرص المتاحة في البوابات المختلفة.</p></div><div className="result-count">{listings.length} عقار</div></div>
+        <div className="section-head"><div><span className="eyebrow">اختار صح</span><h2>عقارات مميزة في حدائق الأهرام</h2><p>تصفح أحدث الفرص المتاحة في البوابات المختلفة.</p></div><div className="result-count">{filteredListings.length} عقار</div></div>
         <div className="listing-grid">
-          {listings.map(p=><article className="listing-card" key={p.id}>
+          {filteredListings.map(p=><article className="listing-card" key={p.id}>
             <div className="listing-photo"><img src={p.image} alt={p.title}/><span className="tag">{p.tag}</span><button aria-label="إضافة للمفضلة" className={favorites.includes(p.id)?"heart active":"heart"} onClick={()=>toggleFavorite(p.id)}>{favorites.includes(p.id)?"♥":"♡"}</button><span className="deal-tag">{p.deal}</span></div>
             <div className="listing-body"><div className="location">⌖ {p.gate}</div><h3>{p.title}</h3><div className="features"><span>▦ {p.area} م²</span><span>▤ {p.rooms || "—"} غرف</span><span>♧ {p.baths} حمام</span></div><div className="listing-bottom"><strong>{money(p.price)} <small>جنيه</small></strong><button onClick={()=>{setSubmitted(false);setShowForm(true);}}>استفسر عن العقار</button></div></div>
           </article>)}
         </div>
-        <p className="sample-warning">تنبيه: العقارات والأسعار الظاهرة حالياً بيانات تجريبية لتصميم المنصة، وليست عروضاً حقيقية أو متاحة للبيع.</p>
+        {!loadingListings && filteredListings.length === 0 && <p className="sample-warning">لا توجد إعلانات منشورة مطابقة لبحثك حالياً. جرّب تغيير عوامل البحث أو عُد لاحقاً.</p>}
+        {loadingListings && <p className="sample-warning">جارٍ تحميل العقارات المنشورة...</p>}
       </section>
 
       <section className="map-section" id="map"><div className="wrap map-layout"><div><span className="eyebrow">اعرف منطقتك</span><h2>كل حدائق الأهرام في مكان واحد</h2><p>هنضيف خريطة تفاعلية لعرض مواقع العقارات حسب البوابة والشارع، بحيث تقدر تختار العقار من الخريطة مباشرة.</p><a className="primary-btn" href="#listings">تصفح العقارات</a></div><div className="map-preview"><div className="map-grid"><span className="pin pin1">●</span><span className="pin pin2">●</span><span className="pin pin3">●</span><b>حدائق الأهرام</b></div><small>تصور مبدئي للخريطة — سيتم ربطها بمواقع العقارات الفعلية</small></div></div></section>
@@ -85,12 +107,13 @@ export default function Home() {
 
       {showForm && <div className="modal-backdrop" onClick={()=>setShowForm(false)}><div className="listing-modal" onClick={e=>e.stopPropagation()}>
         <button className="modal-close" onClick={()=>setShowForm(false)}>×</button>
-        {submitted ? <div className="success-state"><div>✓</div><h2>استلمنا بياناتك المبدئية</h2><p>نموذج الإضافة في هذه النسخة تجريبي. لن يتم نشر إعلانك أو حفظه في قاعدة بيانات قبل تفعيل حسابات المستخدمين وقاعدة البيانات.</p><button className="primary-btn" onClick={()=>setShowForm(false)}>حسناً</button></div> : <>
-          <span className="eyebrow">إضافة عقار</span><h2>ابدأ بإضافة إعلانك</h2><p className="modal-intro">املأ البيانات الأساسية، وسيتم تفعيل الإرسال والنشر بعد تجهيز حسابات الملاك والوسطاء.</p>
-          <form onSubmit={e=>{e.preventDefault();setSubmitted(true);}}>
-            <div className="form-grid"><label>نوع الحساب<select required><option value="">اختر</option><option>مالك</option><option>وسيط عقاري</option></select></label><label>نوع العملية<select required><option value="">اختر</option><option>بيع</option><option>إيجار</option></select></label><label>نوع العقار<select required><option value="">اختر</option><option>شقة</option><option>دوبلكس</option><option>محل تجاري</option><option>أرض</option><option>فيلا</option></select></label><label>البوابة<select required>{gates.slice(1).map(g=><option key={g}>{g}</option>)}</select></label><label>السعر بالجنيه<input required type="number" min="1" placeholder="السعر"/></label><label>المساحة بالمتر<input required type="number" min="1" placeholder="المساحة"/></label><label>الاسم<input required placeholder="الاسم بالكامل"/></label><label>رقم الموبايل<input required type="tel" placeholder="01xxxxxxxxx"/></label></div>
-            <label className="full-label">تفاصيل إضافية<textarea rows="3" placeholder="الدور، التشطيب، عدد الغرف، العنوان بالتفصيل..."/></label>
-            <button className="submit-listing" type="submit">إرسال البيانات المبدئية</button>
+        {submitted ? <div className="success-state"><div>✓</div><h2>استلمنا بياناتك المبدئية</h2><p>تم استلام إعلانك وحفظه بنجاح، وسيظهر بعد مراجعته واعتماده من إدارة المنصة.</p><button className="primary-btn" onClick={()=>setShowForm(false)}>حسناً</button></div> : <>
+          <span className="eyebrow">إضافة عقار</span><h2>ابدأ بإضافة إعلانك</h2><p className="modal-intro">املأ البيانات الأساسية. الإعلان لن يظهر للزوار إلا بعد مراجعته واعتماده.</p>
+          <form onSubmit={async e=>{e.preventDefault();setSubmitError("");if(!supabase){setSubmitError("الاتصال بقاعدة البيانات غير مكتمل. حاول لاحقاً.");return;}const fd=new FormData(e.currentTarget);const propertyType=fd.get("property_type");const dealType=fd.get("deal_type");const {data:{user}}=await supabase.auth.getUser();const {error}=await supabase.from("listings").insert({title:`${propertyType} ${dealType} في ${fd.get("gate")}`,deal_type:dealType,property_type:propertyType,gate:fd.get("gate"),price:Number(fd.get("price")),area:Number(fd.get("area")),contact_name:fd.get("contact_name"),phone:fd.get("phone"),description:`نوع الحساب: ${fd.get("account_type")}\n${fd.get("description")||""}`,status:"pending",submitted_by:user?.id||null,submitted_email:user?.email||null});if(error){setSubmitError("تعذر حفظ الإعلان: "+error.message);return;}setSubmitted(true);e.currentTarget.reset();}}>
+            <div className="form-grid"><label>نوع الحساب<select name="account_type" required><option value="">اختر</option><option>مالك</option><option>وسيط عقاري</option></select></label><label>نوع العملية<select name="deal_type" required><option value="">اختر</option><option value="بيع">بيع</option><option value="إيجار">إيجار</option></select></label><label>نوع العقار<select name="property_type" required><option value="">اختر</option><option>شقة</option><option>دوبلكس</option><option>محل تجاري</option><option>أرض</option><option>فيلا</option></select></label><label>البوابة<select name="gate" required>{gates.slice(1).map(g=><option key={g}>{g}</option>)}</select></label><label>السعر بالجنيه<input name="price" required type="number" min="1" placeholder="السعر"/></label><label>المساحة بالمتر<input name="area" required type="number" min="1" placeholder="المساحة"/></label><label>الاسم<input name="contact_name" required placeholder="الاسم بالكامل"/></label><label>رقم الموبايل<input name="phone" required type="tel" placeholder="01xxxxxxxxx"/></label></div>
+            <label className="full-label">تفاصيل إضافية<textarea name="description" rows="3" placeholder="الدور، التشطيب، عدد الغرف، العنوان بالتفصيل..."/></label>
+            {submitError && <p role="alert" className="sample-warning">{submitError}</p>}
+            <button className="submit-listing" type="submit">إرسال الإعلان للمراجعة</button>
           </form>
         </>}
       </div></div>}
