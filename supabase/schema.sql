@@ -35,3 +35,14 @@ on public.listings for all
 to authenticated
 using ((auth.jwt() ->> 'email') = 'bilalatef88@gmail.com')
 with check ((auth.jwt() ->> 'email') = 'bilalatef88@gmail.com');
+
+-- السماح للزوار بإرسال إعلان جديد للمراجعة فقط؛ لا يمكنهم نشره مباشرة
+drop policy if exists "Public can submit pending listings" on public.listings;
+create policy "Public can submit pending listings"
+on public.listings for insert
+to anon, authenticated
+with check (
+  status = 'pending'
+  and length(trim(coalesce(contact_name, ''))) > 0
+  and length(trim(coalesce(phone, ''))) > 0
+);
