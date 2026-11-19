@@ -38,6 +38,12 @@ export default function AdminPage() {
     return () => { alive = false; listener?.subscription?.unsubscribe(); };
   }, [router]);
 
+  async function updateStatus(id, status) {
+    const { error: updateError } = await supabase.from("listings").update({ status }).eq("id", id);
+    if (updateError) { setError("تعذر تحديث حالة الإعلان: " + updateError.message); return; }
+    setListings((current) => current.map((item) => item.id === id ? { ...item, status } : item));
+  }
+
   async function signOut() { await supabase?.auth.signOut(); router.replace("/login"); }
 
   return (
@@ -58,7 +64,7 @@ export default function AdminPage() {
           {error && <div style={{background:"#fff7e8",border:"1px solid #f0dfbd",padding:15,borderRadius:10,fontSize:13,lineHeight:2}}>{error}</div>}
           <div style={{background:"#fff",border:"1px solid #e5ebf1",borderRadius:13,padding:20,marginTop:18}}>
             <h2 style={{fontSize:18,marginTop:0}}>الإعلانات</h2>
-            {listings.length===0 ? <p style={{fontSize:13,color:"#738196"}}>لا توجد إعلانات محفوظة حالياً.</p> : <div style={{overflowX:"auto"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}><thead><tr>{["العقار","النوع","السعر","الحالة","تاريخ الإضافة"].map(x=><th key={x} style={{textAlign:"right",padding:10,borderBottom:"1px solid #e5ebf1"}}>{x}</th>)}</tr></thead><tbody>{listings.map(x=><tr key={x.id}>{[x.title,x.property_type,x.price,x.status,new Date(x.created_at).toLocaleDateString("ar-EG")].map((v,i)=><td key={i} style={{padding:10,borderBottom:"1px solid #f0f2f5"}}>{v ?? "—"}</td>)}</tr>)}</tbody></table></div>}
+            {listings.length===0 ? <p style={{fontSize:13,color:"#738196"}}>لا توجد إعلانات محفوظة حالياً.</p> : <div style={{overflowX:"auto"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}><thead><tr>{["العقار","النوع","السعر","الحالة","تاريخ الإضافة","الإجراء"].map(x=><th key={x} style={{textAlign:"right",padding:10,borderBottom:"1px solid #e5ebf1"}}>{x}</th>)}</tr></thead><tbody>{listings.map(x=><tr key={x.id}>{[x.title,x.property_type,x.price,x.status,new Date(x.created_at).toLocaleDateString("ar-EG")].map((v,i)=><td key={i} style={{padding:10,borderBottom:"1px solid #f0f2f5"}}>{v ?? "—"}</td>)}<td style={{padding:10,borderBottom:"1px solid #f0f2f5",whiteSpace:"nowrap"}}>{x.status!=="published" && <button onClick={()=>updateStatus(x.id,"published")} style={{background:"#147d55",color:"#fff",border:0,borderRadius:7,padding:"7px 10px",cursor:"pointer",marginLeft:6}}>اعتماد ونشر</button>}{x.status!=="rejected" && <button onClick={()=>updateStatus(x.id,"rejected")} style={{background:"#a33b3b",color:"#fff",border:0,borderRadius:7,padding:"7px 10px",cursor:"pointer"}}>رفض</button>}</td></tr>)}</tbody></table></div>}
           </div>
         </>}
       </section>
