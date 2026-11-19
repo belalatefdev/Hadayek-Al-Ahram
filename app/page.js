@@ -39,7 +39,7 @@ export default function Home() {
       <header className="header"><div className="wrap header-inner">
         <a className="logo" href="#"><span className="logo-mark">⌂</span><span><b>حدائق الأهرام</b><small>منطقتك.. عقارك.. اختيارك</small></span></a>
         <nav><a href="#home">الرئيسية</a><a href="#listings">عقارات للبيع</a><a href="#listings">عقارات للإيجار</a><a href="#map">الخريطة</a></nav>
-        <button className="add-top" onClick={() => { setSubmitted(false); setShowForm(true); }}>＋ أضف عقارك</button>
+        <div style={{display:"flex",alignItems:"center",gap:10}}><a href="/login" style={{fontSize:11,fontWeight:800,color:"#52657d"}}>دخول الإدارة</a><button className="add-top" onClick={() => { setSubmitted(false); setShowForm(true); }}>＋ أضف عقارك</button></div>
       </div></header>
 
       <section className="hero" id="home">
