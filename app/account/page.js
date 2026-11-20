@@ -20,7 +20,11 @@ export default function AccountPage() {
     async function checkSession() {
       if (!supabase) return;
       const { data } = await supabase.auth.getSession();
-      if (active && data.session) router.replace("/my-listings");
+      if (active && data.session) {
+        const { data: profile } = await supabase.from("profiles").select("is_active").eq("id", data.session.user.id).maybeSingle();
+        if (profile?.is_active === false) { await supabase.auth.signOut(); if (active) setMessage("هذا الحساب موقوف حالياً. تواصل مع إدارة المنصة."); }
+        else if (active) router.replace("/my-listings");
+      }
     }
     checkSession();
     return () => { active = false; };
@@ -42,9 +46,15 @@ export default function AccountPage() {
       else if (data.session) router.replace("/my-listings");
       else setMessage("تم إنشاء الحساب. افتح بريدك الإلكتروني واضغط رابط التأكيد، وبعدها سجل دخولك من هنا.");
     } else {
-      const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
       if (error) setMessage("بيانات الدخول غير صحيحة أو الحساب لم يتم تأكيده: " + error.message);
-      else router.replace("/my-listings");
+      else {
+        const { data: profile } = await supabase.from("profiles").select("is_active").eq("id", data.user.id).maybeSingle();
+        if (profile?.is_active === false) {
+          await supabase.auth.signOut();
+          setMessage("هذا الحساب موقوف حالياً. تواصل مع إدارة المنصة.");
+        } else router.replace("/my-listings");
+      }
     }
     setLoading(false);
   }
