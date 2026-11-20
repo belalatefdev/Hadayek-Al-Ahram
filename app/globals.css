@@ -203,3 +203,27 @@ footer{padding-top:25px;padding-bottom:25px}
   direction:rtl;
 }
 .support-email:hover{text-decoration:underline;color:#f5d98f}
+
+
+/* Responsive Google Maps section for Hadayek Al Ahram */
+.map-layout{align-items:center;gap:34px}
+.map-copy{min-width:260px}
+.map-copy p{line-height:2}
+.google-map-frame{
+  width:100%;
+  min-width:0;
+  height:390px;
+  overflow:hidden;
+  border:5px solid #fff;
+  border-radius:20px;
+  background:#e8edf2;
+  box-shadow:0 18px 48px rgba(12,35,58,.18);
+}
+.google-map-frame iframe{display:block;width:100%;height:100%;border:0}
+@media(max-width:800px){
+  .map-layout{grid-template-columns:1fr!important}
+  .google-map-frame{height:340px}
+}
+@media(max-width:480px){
+  .google-map-frame{height:300px;border-width:3px;border-radius:14px}
+}
