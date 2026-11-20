@@ -21,9 +21,16 @@ export default function MyListingsPage() {
     if (authError || !current) { router.replace("/account"); return; }
     setUser(current);
     const [{data:profileData},{data:listingsData,error:listError}] = await Promise.all([
-      supabase.from("profiles").select("full_name,phone,account_type").eq("id",current.id).maybeSingle(),
+      supabase.from("profiles").select("full_name,phone,account_type,is_active").eq("id",current.id).maybeSingle(),
       supabase.from("listings").select("*").eq("submitted_by",current.id).order("created_at",{ascending:false})
     ]);
+    if (profileData?.is_active === false) {
+      await supabase.auth.signOut();
+      router.replace("/account");
+      setError("هذا الحساب موقوف حالياً. تواصل مع إدارة المنصة.");
+      setLoading(false);
+      return;
+    }
     if (profileData) setProfile(profileData);
     if (listError) setError("تعذر تحميل إعلاناتك: "+listError.message);
     else setItems(listingsData || []);
