@@ -93,7 +93,7 @@ export default function Home() {
         <div className="listing-grid">
           {filteredListings.map(p=><article className="listing-card" key={p.id}>
             <div className="listing-photo"><img src={p.image} alt={p.title}/><span className="tag">{p.tag}</span><button aria-label="إضافة للمفضلة" className={favorites.includes(p.id)?"heart active":"heart"} onClick={()=>toggleFavorite(p.id)}>{favorites.includes(p.id)?"♥":"♡"}</button><span className="deal-tag">{p.deal}</span></div>
-            <div className="listing-body"><div className="location">⌖ {p.gate}</div><h3>{p.title}</h3><div className="features"><span>▦ {p.area} م²</span><span>▤ {p.rooms || "—"} غرف</span><span>♧ {p.baths} حمام</span></div><div className="listing-bottom"><strong>{money(p.price)} <small>جنيه</small></strong><button onClick={()=>{setSubmitted(false);setShowForm(true);}}>استفسر عن العقار</button></div></div>
+            <div className="listing-body"><div className="location">⌖ {p.gate}</div><h3>{p.title}</h3><div className="features"><span>▦ {p.area} م²</span><span>▤ {p.rooms || "—"} غرف</span><span>♧ {p.baths} حمام</span></div><div className="listing-bottom"><strong>{money(p.price)} <small>جنيه</small></strong><a className="details-link" href={`/listing/${p.id}`}>تفاصيل العقار ←</a></div></div>
           </article>)}
         </div>
         {!loadingListings && filteredListings.length === 0 && <p className="sample-warning">لا توجد إعلانات منشورة مطابقة لبحثك حالياً. جرّب تغيير عوامل البحث أو عُد لاحقاً.</p>}
