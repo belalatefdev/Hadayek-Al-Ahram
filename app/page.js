@@ -56,9 +56,9 @@ export default function Home() {
 
   return (
     <main>
-      <div className="topline"><div className="wrap topline-inner"><span>⌖ دليلك العقاري المتخصص في حدائق الأهرام</span><span>بيع • شراء • إيجار</span></div></div>
+      <div className="topline"><div className="wrap topline-inner"><span>★ منصتك العقارية من قلب الجيزة</span><span>بيع • شراء • إيجار</span></div></div>
       <header className="header"><div className="wrap header-inner">
-        <a className="logo" href="#"><span className="logo-mark">⌂</span><span><b>حدائق الأهرام</b><small>منطقتك.. عقارك.. اختيارك</small></span></a>
+        <a className="logo" href="#"><span className="logo-mark">△</span><span><b>حدائق الأهرام</b><small>عقارك بالقرب من الأهرامات</small></span></a>
         <nav><a href="#home">الرئيسية</a><a href="#listings">عقارات للبيع</a><a href="#listings">عقارات للإيجار</a><a href="#map">الخريطة</a></nav>
         <div style={{display:"flex",alignItems:"center",gap:10}}><a href="/account" style={{fontSize:11,fontWeight:800,color:"#52657d"}}>حسابي</a><a href="/login" style={{fontSize:11,fontWeight:800,color:"#52657d"}}>دخول الإدارة</a><button className="add-top" onClick={() => { setSubmitted(false); setShowForm(true); }}>＋ أضف عقارك</button></div>
       </div></header>
@@ -67,8 +67,8 @@ export default function Home() {
         <div className="hero-shade" />
         <div className="wrap hero-content">
           <div className="hero-pill"><i /> منصة عقارية متخصصة في المنطقة</div>
-          <h1>بيتك الجديد<br/><em>يبدأ من هنا</em></h1>
-          <p>اكتشف أفضل فرص البيع والإيجار في حدائق الأهرام<br/>وابحث عن العقار المناسب ليك بسهولة.</p>
+          <h1>منصة حدائق الأهرام<br/><em>عقارك بالقرب من الأهرامات</em></h1>
+          <p>من قلب الجيزة، اكتشف أفضل فرص البيع والإيجار في حدائق الأهرام.<br/>ابحث عن بيتك الجديد بخطوات بسيطة وآمنة.</p>
           <div className="hero-actions"><a href="#listings" className="primary-btn">اكتشف العقارات <span>←</span></a><button className="outline-btn" onClick={() => { setSubmitted(false); setShowForm(true); }}>اعرض عقارك مجاناً</button></div>
         </div>
         <div className="wrap search-wrap"><div className="search-box">
@@ -103,7 +103,7 @@ export default function Home() {
       <section className="map-section" id="map"><div className="wrap map-layout"><div><span className="eyebrow">اعرف منطقتك</span><h2>كل حدائق الأهرام في مكان واحد</h2><p>هنضيف خريطة تفاعلية لعرض مواقع العقارات حسب البوابة والشارع، بحيث تقدر تختار العقار من الخريطة مباشرة.</p><a className="primary-btn" href="#listings">تصفح العقارات</a></div><div className="map-preview"><div className="map-grid"><span className="pin pin1">●</span><span className="pin pin2">●</span><span className="pin pin3">●</span><b>حدائق الأهرام</b></div><small>تصور مبدئي للخريطة — سيتم ربطها بمواقع العقارات الفعلية</small></div></div></section>
 
       <section className="owner-cta"><div className="wrap owner-inner"><div><span className="eyebrow light">عندك عقار؟</span><h2>اعرض عقارك للباحثين عن بيتهم الجديد</h2><p>سواء كنت مالك أو وسيط عقاري، ابدأ طلب إضافة إعلانك.</p></div><button onClick={()=>{setSubmitted(false);setShowForm(true);}}>＋ أضف إعلانك الآن</button></div></section>
-      <footer><div className="wrap footer-inner"><a className="logo" href="#"><span className="logo-mark">⌂</span><span><b>حدائق الأهرام</b><small>منطقتك.. عقارك.. اختيارك</small></span></a><p>منصة عقارية متخصصة في حدائق الأهرام.</p><span>© {new Date().getFullYear()} جميع الحقوق محفوظة</span></div></footer>
+      <footer><div className="wrap footer-inner"><a className="logo" href="#"><span className="logo-mark">⌂</span><span><b>حدائق الأهرام</b><small>منطقتك.. عقارك.. اختيارك</small></span></a><p>منصة عقارية متخصصة في حدائق الأهرام — عقارك بالقرب من الأهرامات.</p><span>© {new Date().getFullYear()} جميع الحقوق محفوظة</span><a className="photo-credit" href="https://commons.wikimedia.org/wiki/File:Great_Pyramid_of_Giza_panorama.jpg" target="_blank" rel="noreferrer">صورة الأهرامات: Kallerna — CC BY-SA 3.0</a></div></footer>
 
       {showForm && <div className="modal-backdrop" onClick={()=>setShowForm(false)}><div className="listing-modal" onClick={e=>e.stopPropagation()}>
         <button className="modal-close" onClick={()=>setShowForm(false)}>×</button>
