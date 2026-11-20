@@ -123,3 +123,19 @@ footer{padding-top:25px;padding-bottom:25px}
 /* Move the homepage search/options panel slightly lower */
 .search-wrap{margin-top:8px!important}
 @media(max-width:700px){.search-wrap{margin-top:8px!important}}
+
+
+/* Signature hero: the three Giza pyramids above the real urban skyline */
+.hero{
+  background:
+    linear-gradient(90deg,rgba(5,25,45,.30) 0%,rgba(5,25,45,.12) 42%,rgba(5,25,45,.25) 100%),
+    url('https://commons.wikimedia.org/wiki/Special:FilePath/Giza,_Dahshur_and_Saqqara_-_Giza8254.jpg?width=1920') center 48%/cover no-repeat!important;
+}
+.hero-shade{
+  background:linear-gradient(90deg,rgba(7,27,50,.22) 0%,rgba(10,39,68,.10) 50%,rgba(10,39,68,.20) 100%)!important;
+}
+.hero h1,.hero p,.hero-pill{text-shadow:0 2px 10px rgba(5,22,40,.40)}
+@media(max-width:700px){
+ .hero{background-position:48% center!important}
+ .hero-shade{background:linear-gradient(180deg,rgba(7,27,50,.20),rgba(10,39,68,.10) 65%,rgba(10,39,68,.22))!important}
+}
