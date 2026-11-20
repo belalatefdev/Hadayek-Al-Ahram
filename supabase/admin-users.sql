@@ -34,3 +34,16 @@ drop policy if exists "Admin can view all profiles" on public.profiles;
 create policy "Admin can view all profiles"
 on public.profiles for select to authenticated
 using (lower(coalesce(auth.jwt() ->> 'email', '')) = 'bilalatef88@gmail.com');
+
+
+-- Account activation flag; existing accounts remain active by default.
+alter table public.profiles
+add column if not exists is_active boolean not null default true;
+
+grant update (is_active) on table public.profiles to authenticated;
+
+drop policy if exists "Admin can manage profile activation" on public.profiles;
+create policy "Admin can manage profile activation"
+on public.profiles for update to authenticated
+using (lower(coalesce(auth.jwt() ->> 'email', '')) = 'bilalatef88@gmail.com')
+with check (lower(coalesce(auth.jwt() ->> 'email', '')) = 'bilalatef88@gmail.com');
