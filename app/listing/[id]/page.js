@@ -29,7 +29,7 @@ export default function ListingDetails() {
   }, [id]);
 
   const images = listing?.image_urls?.length ? listing.image_urls : ["https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1400&q=85"];
-  const phone = (listing?.phone || "").replace(/\\D/g, "");
+  const phone = (listing?.phone || "").replace(/\D/g, "");
   const whatsappPhone = phone.startsWith("0") ? "20" + phone.slice(1) : phone;
   const whatsappMessage = encodeURIComponent("مرحباً، أنا مهتم بالعقار: " + (listing?.title || ""));
   const dealLabel = listing?.deal_type === "بيع" ? "للبيع" : "للإيجار";
@@ -49,7 +49,7 @@ export default function ListingDetails() {
               <div className="details-gallery"><img className="details-main-image" src={images[activeImage]} alt={listing.title}/></div>
               {images.length > 1 && <div className="details-thumbs">{images.map((src,index)=><button key={src+index} className={activeImage===index?"selected":""} onClick={()=>setActiveImage(index)}><img src={src} alt={"صورة العقار "+(index+1)}/></button>)}</div>}
               <div className="details-panel"><h2>تفاصيل العقار</h2><div className="details-facts"><div><small>نوع العملية</small><b>{dealLabel}</b></div><div><small>نوع العقار</small><b>{listing.property_type}</b></div><div><small>المساحة</small><b>{listing.area ? money(listing.area)+" م²" : "غير محدد"}</b></div><div><small>البوابة</small><b>{listing.gate || "حدائق الأهرام"}</b></div>{listing.bedrooms ? <div><small>غرف النوم</small><b>{listing.bedrooms}</b></div> : null}{listing.bathrooms ? <div><small>الحمامات</small><b>{listing.bathrooms}</b></div> : null}</div>
-                <h2>الوصف</h2><p className="details-description">{(listing.description || "لم يضف المعلن تفاصيل إضافية لهذا العقار.").replace(/^نوع الحساب:.*\\n?/m,"")}</p>
+                <h2>الوصف</h2><p className="details-description">{(listing.description || "لم يضف المعلن تفاصيل إضافية لهذا العقار.").replace(/^نوع الحساب:.*\n?/m,"")}</p>
               </div>
             </section>
             <aside className="contact-panel"><span className="eyebrow">مهتم بالعقار؟</span><h2>تواصل مع المعلن</h2><p>اسأل عن التفاصيل وحدد موعداً لمعاينة العقار.</p>{phone ? <><a className="whatsapp-button" href={`https://wa.me/${whatsappPhone}?text=${whatsappMessage}`} target="_blank" rel="noreferrer">تواصل عبر واتساب</a><a className="call-button" href={`tel:${listing.phone}`}>اتصال هاتفي: {listing.phone}</a></> : <p className="details-description">بيانات التواصل غير متاحة حالياً.</p>}<small>تأكد من معاينة العقار والتحقق من بياناته قبل إتمام أي اتفاق.</small></aside>
