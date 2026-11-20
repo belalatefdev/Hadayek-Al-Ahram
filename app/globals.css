@@ -73,7 +73,7 @@ footer{padding-top:25px;padding-bottom:25px}
 
 /* Giza pyramids identity */
 .logo-mark{position:relative;clip-path:polygon(50% 4%,96% 92%,4% 92%);border-radius:0;background:linear-gradient(145deg,#f4dfaa,#d9ad43);color:#102b4d;font-size:25px;box-shadow:none}
-.hero{background-image:linear-gradient(90deg,rgba(7,27,50,.88) 0%,rgba(10,39,68,.68) 48%,rgba(10,39,68,.20) 100%),url('https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bf/Great_Pyramid_of_Giza_panorama.jpg/1280px-Great_Pyramid_of_Giza_panorama.jpg');background-position:center 48%;background-size:cover}
+.hero{background:linear-gradient(90deg,rgba(7,27,50,.82) 0%,rgba(10,39,68,.50) 48%,rgba(10,39,68,.10) 100%),url('https://commons.wikimedia.org/wiki/Special:FilePath/Great_Pyramid_of_Giza_panorama.jpg?width=1920') center 48%/cover no-repeat!important}
 .hero:after{content:"";position:absolute;inset:auto 0 0;height:92px;background:linear-gradient(0deg,rgba(9,31,54,.62),transparent);pointer-events:none}
 .hero-content{z-index:1}
 .hero h1{max-width:760px}
