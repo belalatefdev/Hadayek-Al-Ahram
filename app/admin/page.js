@@ -19,6 +19,16 @@ export default function AdminPage() {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [profiles, setProfiles] = useState([]);
+  const [activeTab, setActiveTab] = useState("listings");
+  const [profileError, setProfileError] = useState("");
+
+  const loadProfiles = useCallback(async () => {
+    if (!supabase) return;
+    const { data, error: queryError } = await supabase.from("profiles").select("id,full_name,phone,account_type,created_at").order("created_at", { ascending: false });
+    if (queryError) setProfileError("تعذر تحميل الحسابات: " + queryError.message);
+    else { setProfiles(data || []); setProfileError(""); }
+  }, []);
 
   const loadListings = useCallback(async () => {
     if (!supabase) { setError("إعدادات Supabase غير مكتملة."); return; }
@@ -45,6 +55,9 @@ export default function AdminPage() {
       if (!alive) return;
       if (queryError) setError("تعذر تحميل الإعلانات: " + queryError.message);
       else setListings(data || []);
+      const { data: profileRows, error: profileQueryError } = await supabase.from("profiles").select("id,full_name,phone,account_type,created_at").order("created_at", { ascending: false });
+      if (profileQueryError) setProfileError("تعذر تحميل الحسابات: " + profileQueryError.message);
+      else setProfiles(profileRows || []);
       setChecking(false);
     }
     load();
@@ -74,6 +87,17 @@ export default function AdminPage() {
     rejected: listings.filter(x => x.status === "rejected").length,
   }), [listings]);
 
+  const profileCounts = useMemo(() => {
+    const counts = {};
+    listings.forEach(item => { if (item.submitted_by) counts[item.submitted_by] = (counts[item.submitted_by] || 0) + 1; });
+    return counts;
+  }, [listings]);
+
+  const visibleProfiles = useMemo(() => profiles.filter(profile => {
+    const haystack = [profile.full_name, profile.phone, profile.account_type].join(" ").toLowerCase();
+    return haystack.includes(search.trim().toLowerCase());
+  }), [profiles, search]);
+
   const visible = useMemo(() => listings.filter(x => {
     const matchesStatus = filter === "all" || x.status === filter;
     const haystack = [x.title, x.property_type, x.gate, x.contact_name, x.phone, x.submitted_email].join(" ").toLowerCase();
@@ -89,7 +113,7 @@ export default function AdminPage() {
     .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:22px}.stat{background:#fff;border:1px solid #e7ecf2;border-radius:13px;padding:17px;display:flex;align-items:center;gap:12px}.stat-icon{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:#edf3f8;color:#244d75}.stat small{display:block;color:#8491a1;font-size:10px}.stat strong{font-size:24px;color:#173653}
     .toolbar{background:#fff;border:1px solid #e7ecf2;border-radius:13px;padding:15px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.filters{display:flex;gap:7px;flex-wrap:wrap}.filters button{border:1px solid #e3e9ef;background:#fff;color:#627286;border-radius:8px;padding:8px 12px;font-size:10px;font-weight:800;cursor:pointer}.filters button.active{background:#102b4d;border-color:#102b4d;color:#fff}.search{height:38px;min-width:220px;border:1px solid #e3e9ef;border-radius:8px;padding:0 11px;font-size:11px;outline:none}
     .table-panel{background:#fff;border:1px solid #e7ecf2;border-radius:13px;overflow:hidden}.panel-head{padding:17px 19px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #edf0f4}.panel-head h2{font-size:15px;margin:0;color:#173653}.panel-head span{font-size:10px;color:#8a97a6}.table-scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:820px}th{text-align:right;background:#f9fafc;color:#7c8998;font-size:10px;font-weight:800;padding:13px 15px}td{padding:13px 15px;border-top:1px solid #f0f2f5;font-size:11px;color:#40546b;vertical-align:middle}.property-cell{display:flex;align-items:center;gap:10px;min-width:210px}.thumb{width:55px;height:48px;border-radius:8px;object-fit:cover;background:#edf1f5}.property-cell b{display:block;color:#193653;font-size:11px;max-width:220px}.property-cell small{color:#929eac;font-size:9px}.status{display:inline-block;border-radius:20px;padding:5px 9px;font-size:9px;font-weight:900;white-space:nowrap}.status.pending{background:#fff5df;color:#a2761f}.status.published{background:#e8f6ef;color:#18764e}.status.rejected{background:#fceeee;color:#a63d3d}.actions{display:flex;gap:5px;white-space:nowrap}.actions button{border:0;border-radius:7px;padding:7px 9px;font-size:9px;font-weight:900;cursor:pointer}.view{background:#edf3f8;color:#244d75}.approve{background:#168254;color:#fff}.reject{background:#f8eaea;color:#a33e3e}.muted-btn{background:#fff4dc;color:#8d681e}.empty{padding:38px 15px;text-align:center;color:#8a97a6;font-size:12px}.notice{background:#fff6e7;border:1px solid #f0dfbd;color:#8b6827;padding:12px 15px;border-radius:9px;font-size:11px;line-height:1.8;margin:12px 0}
-    .modal-shade{position:fixed;inset:0;z-index:40;background:#081a2dcc;display:grid;place-items:center;padding:15px}.detail-modal{background:#fff;border-radius:16px;width:min(720px,100%);max-height:92vh;overflow:auto;padding:23px;position:relative}.close{position:absolute;left:15px;top:13px;border:0;border-radius:50%;width:32px;height:32px;background:#f0f3f6;font-size:20px;cursor:pointer}.detail-modal h2{font-size:19px;color:#102b4d;margin:0 35px 5px 0}.modal-sub{font-size:11px;color:#8592a1;margin:0 0 16px}.gallery{display:flex;gap:8px;overflow:auto;margin-bottom:17px}.gallery img{width:150px;height:115px;object-fit:cover;border-radius:9px;background:#eef1f4}.detail-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.detail-item{background:#f5f7fa;padding:10px;border-radius:8px}.detail-item small{display:block;color:#8a97a6;font-size:9px}.detail-item b{font-size:11px;color:#29435e;word-break:break-word}.description{white-space:pre-line;font-size:11px;line-height:2;color:#63748a;margin-top:14px}.modal-actions{display:flex;gap:8px;margin-top:17px;flex-wrap:wrap}.modal-actions button,.modal-actions a{border:0;border-radius:8px;padding:10px 14px;font-size:11px;font-weight:900;text-decoration:none;cursor:pointer}
+    .admin-tabs{display:flex;gap:8px;margin:0 0 15px}.admin-tabs button{border:1px solid #e3e9ef;background:#fff;color:#52667c;border-radius:9px;padding:10px 16px;font-size:11px;font-weight:900;cursor:pointer}.admin-tabs button.active{background:#102b4d;color:#fff;border-color:#102b4d}.account-type{display:inline-block;background:#edf3f8;color:#244d75;padding:5px 9px;border-radius:20px;font-size:10px;font-weight:900}.profile-id{font-size:9px;color:#98a3af;direction:ltr;display:block;max-width:180px;overflow:hidden;text-overflow:ellipsis}.modal-shade{position:fixed;inset:0;z-index:40;background:#081a2dcc;display:grid;place-items:center;padding:15px}.detail-modal{background:#fff;border-radius:16px;width:min(720px,100%);max-height:92vh;overflow:auto;padding:23px;position:relative}.close{position:absolute;left:15px;top:13px;border:0;border-radius:50%;width:32px;height:32px;background:#f0f3f6;font-size:20px;cursor:pointer}.detail-modal h2{font-size:19px;color:#102b4d;margin:0 35px 5px 0}.modal-sub{font-size:11px;color:#8592a1;margin:0 0 16px}.gallery{display:flex;gap:8px;overflow:auto;margin-bottom:17px}.gallery img{width:150px;height:115px;object-fit:cover;border-radius:9px;background:#eef1f4}.detail-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.detail-item{background:#f5f7fa;padding:10px;border-radius:8px}.detail-item small{display:block;color:#8a97a6;font-size:9px}.detail-item b{font-size:11px;color:#29435e;word-break:break-word}.description{white-space:pre-line;font-size:11px;line-height:2;color:#63748a;margin-top:14px}.modal-actions{display:flex;gap:8px;margin-top:17px;flex-wrap:wrap}.modal-actions button,.modal-actions a{border:0;border-radius:8px;padding:10px 14px;font-size:11px;font-weight:900;text-decoration:none;cursor:pointer}
     @media(max-width:760px){.admin-header{padding:13px 4%}.brand b{font-size:15px}.header-actions a{display:none}.admin-main{width:94%;margin-top:22px}.welcome{align-items:start;flex-direction:column}.welcome h1{font-size:22px}.stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.stat{padding:12px;gap:8px}.stat-icon{width:35px;height:35px}.stat strong{font-size:20px}.toolbar{align-items:stretch;flex-direction:column}.search{width:100%;min-width:0}.panel-head{padding:14px}.detail-grid{grid-template-columns:1fr 1fr}}
     @media(max-width:390px){.header-actions button{padding:8px}.brand small{font-size:8px}.detail-grid{grid-template-columns:1fr}}
   `;
@@ -110,6 +134,10 @@ export default function AdminPage() {
             <div className="stat"><span className="stat-icon" style={{background:"#e8f6ef",color:"#18764e"}}>✓</span><div><small>منشور على الموقع</small><strong>{counts.published}</strong></div></div>
             <div className="stat"><span className="stat-icon" style={{background:"#fceeee",color:"#a63d3d"}}>×</span><div><small>مرفوض</small><strong>{counts.rejected}</strong></div></div>
           </div>
+          <div className="admin-tabs">
+            <button className={activeTab==="listings"?"active":""} onClick={()=>setActiveTab("listings")}>إدارة الإعلانات ({listings.length})</button>
+            <button className={activeTab==="accounts"?"active":""} onClick={()=>{setActiveTab("accounts");if(!profiles.length)loadProfiles();}}>إدارة الحسابات ({profiles.length})</button>
+          </div>
           <div className="toolbar">
             <div className="filters">
               {[["all","الكل"],["pending","قيد المراجعة"],["published","منشور"],["rejected","مرفوض"]].map(([key,label])=><button key={key} className={filter===key?"active":""} onClick={()=>setFilter(key)}>{label} ({counts[key]})</button>)}
@@ -117,7 +145,7 @@ export default function AdminPage() {
             <input className="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="ابحث بالعنوان أو البوابة أو رقم الهاتف..."/>
           </div>
           {error && <div className="notice">{error}</div>}
-          <div className="table-panel">
+          {activeTab==="listings" ? <div className="table-panel">
             <div className="panel-head"><h2>قائمة الإعلانات</h2><span>{visible.length} نتيجة · <button onClick={loadListings} disabled={refreshing} style={{border:0,background:"none",color:"#24527d",fontWeight:900,cursor:"pointer"}}>{refreshing?"جارٍ التحديث...":"تحديث ↻"}</button></span></div>
             {visible.length===0 ? <div className="empty">{listings.length===0?"لا توجد إعلانات محفوظة حتى الآن.":"لا توجد نتائج مطابقة للبحث."}</div> :
               <div className="table-scroll"><table><thead><tr><th>العقار</th><th>السعر</th><th>المعلن</th><th>الحالة</th><th>التاريخ</th><th>الإجراءات</th></tr></thead><tbody>
@@ -129,7 +157,21 @@ export default function AdminPage() {
                   <td><div className="actions"><button className="view" onClick={()=>setSelected(item)}>عرض</button>{item.status!=="published" && <button className="approve" disabled={busyId===item.id} onClick={()=>updateStatus(item.id,"published")}>{busyId===item.id?"...":"نشر"}</button>}{item.status!=="rejected" && <button className="reject" disabled={busyId===item.id} onClick={()=>updateStatus(item.id,"rejected")}>رفض</button>}{item.status==="rejected" && <button className="muted-btn" disabled={busyId===item.id} onClick={()=>updateStatus(item.id,"pending")}>إعادة للمراجعة</button>}</div></td>
                 </tr>)}
               </tbody></table></div>}
-          </div>
+          </div> : <div className="table-panel">
+            <div className="panel-head"><h2>حسابات الملاك والوسطاء</h2><span>{visibleProfiles.length} حساب · <button onClick={loadProfiles} style={{border:0,background:"none",color:"#24527d",fontWeight:900,cursor:"pointer"}}>تحديث ↻</button></span></div>
+            {profileError && <div className="notice">{profileError} — تأكد من تشغيل ملف supabase/admin-users.sql في قاعدة البيانات.</div>}
+            {visibleProfiles.length===0 ? <div className="empty">لا توجد حسابات مطابقة للبحث.</div> :
+              <div className="table-scroll"><table style={{minWidth:650}}><thead><tr><th>الاسم</th><th>نوع الحساب</th><th>رقم الهاتف</th><th>البريد الإلكتروني</th><th>عدد الإعلانات</th><th>تاريخ التسجيل</th></tr></thead><tbody>
+                {visibleProfiles.map(profile=><tr key={profile.id}>
+                  <td><b>{profile.full_name || "بدون اسم"}</b><span className="profile-id">{profile.id}</span></td>
+                  <td><span className="account-type">{profile.account_type || "مالك"}</span></td>
+                  <td>{profile.phone || "—"}</td>
+                  <td>{listings.find(item=>item.submitted_by===profile.id)?.submitted_email || "—"}</td>
+                  <td>{profileCounts[profile.id] || 0}</td>
+                  <td>{profile.created_at?new Date(profile.created_at).toLocaleDateString("ar-EG"):"—"}</td>
+                </tr>)}
+              </tbody></table></div>}
+          </div>}
         </>}
       </section>
       {selected && <div className="modal-shade" onClick={()=>setSelected(null)}><section className="detail-modal" onClick={e=>e.stopPropagation()}>
