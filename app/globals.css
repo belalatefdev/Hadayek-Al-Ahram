@@ -118,3 +118,8 @@ footer{padding-top:25px;padding-bottom:25px}
   .hero-shade{background:linear-gradient(180deg,rgba(7,27,50,.18),rgba(10,39,68,.08) 65%,rgba(10,39,68,.22))!important}
   .search-wrap{margin-top:-24px!important}
 }
+
+
+/* Move the homepage search/options panel slightly lower */
+.search-wrap{margin-top:8px!important}
+@media(max-width:700px){.search-wrap{margin-top:8px!important}}
