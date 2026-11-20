@@ -191,3 +191,15 @@ footer{padding-top:25px;padding-bottom:25px}
   .hero p{font-size:15px;line-height:1.9;padding:10px 13px}
   .hero h1{font-size:clamp(32px,8vw,44px)}
 }
+
+
+.support-email{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  color:#e4bd62;
+  font-weight:800;
+  text-decoration:none;
+  direction:rtl;
+}
+.support-email:hover{text-decoration:underline;color:#f5d98f}
