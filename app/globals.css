@@ -139,3 +139,14 @@ footer{padding-top:25px;padding-bottom:25px}
  .hero{background-position:48% center!important}
  .hero-shade{background:linear-gradient(180deg,rgba(7,27,50,.20),rgba(10,39,68,.10) 65%,rgba(10,39,68,.22))!important}
 }
+
+
+/* Use the exact user-provided Giza + residential skyline hero image */
+.hero{
+  background:
+    linear-gradient(90deg,rgba(5,25,45,.20) 0%,rgba(5,25,45,.08) 48%,rgba(5,25,45,.14) 100%),
+    url('/giza-pyramids-residential.webp') center 50%/cover no-repeat!important;
+}
+@media(max-width:700px){
+  .hero{background-position:50% 50%!important}
+}
