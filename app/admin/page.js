@@ -24,6 +24,37 @@ export default function AdminPage() {
   const [profileError, setProfileError] = useState("");
   const [selectedProfile, setSelectedProfile] = useState(null);
   const [profileBusyId, setProfileBusyId] = useState("");
+  const [notifications, setNotifications] = useState([]);
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [notificationBusy, setNotificationBusy] = useState(false);
+  const unreadNotifications = notifications.filter(item => !item.is_read).length;
+
+  const loadNotifications = useCallback(async () => {
+    if (!supabase) return;
+    const { data, error: notificationError } = await supabase.from("admin_notifications").select("*").order("created_at", { ascending: false }).limit(40);
+    if (!notificationError) setNotifications(data || []);
+  }, []);
+
+  async function markNotificationRead(item) {
+    if (!item.is_read) {
+      setNotificationBusy(true);
+      const { error: updateError } = await supabase.from("admin_notifications").update({ is_read: true }).eq("id", item.id);
+      if (!updateError) setNotifications(current => current.map(row => row.id === item.id ? { ...row, is_read: true } : row));
+      setNotificationBusy(false);
+    }
+    setActiveTab(item.type === "new_account" ? "accounts" : "listings");
+    if (item.type === "new_listing") setFilter("pending");
+    setNotificationOpen(false);
+  }
+
+  async function markAllNotificationsRead() {
+    const unreadIds = notifications.filter(item => !item.is_read).map(item => item.id);
+    if (!unreadIds.length) return;
+    setNotificationBusy(true);
+    const { error: updateError } = await supabase.from("admin_notifications").update({ is_read: true }).in("id", unreadIds);
+    if (!updateError) setNotifications(current => current.map(item => ({ ...item, is_read: true })));
+    setNotificationBusy(false);
+  }
 
   const loadProfiles = useCallback(async () => {
     if (!supabase) return;
@@ -58,6 +89,8 @@ export default function AdminPage() {
       if (queryError) setError("تعذر تحميل الإعلانات: " + queryError.message);
       else setListings(data || []);
       const { data: profileRows, error: profileQueryError } = await supabase.from("profiles").select("id,full_name,phone,account_type,email,created_at,is_active").order("created_at", { ascending: false });
+      const { data: notificationRows } = await supabase.from("admin_notifications").select("*").order("created_at", { ascending: false }).limit(40);
+      if (notificationRows) setNotifications(notificationRows);
       if (profileQueryError) setProfileError("تعذر تحميل الحسابات: " + profileQueryError.message);
       else setProfiles(profileRows || []);
       setChecking(false);
@@ -66,7 +99,8 @@ export default function AdminPage() {
     const { data: listener } = supabase?.auth.onAuthStateChange((_event, session) => {
       if (!session || session.user.email?.toLowerCase() !== ADMIN_EMAIL) router.replace("/login");
     }) || { data: { subscription: null } };
-    return () => { alive = false; listener?.subscription?.unsubscribe(); };
+    const notificationTimer = setInterval(() => { loadNotifications(); }, 30000);
+    return () => { alive = false; clearInterval(notificationTimer); listener?.subscription?.unsubscribe(); };
   }, [router]);
 
   async function updateStatus(id, status) {
@@ -130,6 +164,8 @@ export default function AdminPage() {
     .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:22px}.stat{background:#fff;border:1px solid #e7ecf2;border-radius:13px;padding:17px;display:flex;align-items:center;gap:12px}.stat-icon{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:#edf3f8;color:#244d75}.stat small{display:block;color:#8491a1;font-size:10px}.stat strong{font-size:24px;color:#173653}
     .toolbar{background:#fff;border:1px solid #e7ecf2;border-radius:13px;padding:15px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.filters{display:flex;gap:7px;flex-wrap:wrap}.filters button{border:1px solid #e3e9ef;background:#fff;color:#627286;border-radius:8px;padding:8px 12px;font-size:10px;font-weight:800;cursor:pointer}.filters button.active{background:#102b4d;border-color:#102b4d;color:#fff}.search{height:38px;min-width:220px;border:1px solid #e3e9ef;border-radius:8px;padding:0 11px;font-size:11px;outline:none}
     .table-panel{background:#fff;border:1px solid #e7ecf2;border-radius:13px;overflow:hidden}.panel-head{padding:17px 19px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #edf0f4}.panel-head h2{font-size:15px;margin:0;color:#173653}.panel-head span{font-size:10px;color:#8a97a6}.table-scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:820px}th{text-align:right;background:#f9fafc;color:#7c8998;font-size:10px;font-weight:800;padding:13px 15px}td{padding:13px 15px;border-top:1px solid #f0f2f5;font-size:11px;color:#40546b;vertical-align:middle}.property-cell{display:flex;align-items:center;gap:10px;min-width:210px}.thumb{width:55px;height:48px;border-radius:8px;object-fit:cover;background:#edf1f5}.property-cell b{display:block;color:#193653;font-size:11px;max-width:220px}.property-cell small{color:#929eac;font-size:9px}.status{display:inline-block;border-radius:20px;padding:5px 9px;font-size:9px;font-weight:900;white-space:nowrap}.status.pending{background:#fff5df;color:#a2761f}.status.published{background:#e8f6ef;color:#18764e}.status.rejected{background:#fceeee;color:#a63d3d}.actions{display:flex;gap:5px;white-space:nowrap}.actions button{border:0;border-radius:7px;padding:7px 9px;font-size:9px;font-weight:900;cursor:pointer}.view{background:#edf3f8;color:#244d75}.approve{background:#168254;color:#fff}.reject{background:#f8eaea;color:#a33e3e}.muted-btn{background:#fff4dc;color:#8d681e}.empty{padding:38px 15px;text-align:center;color:#8a97a6;font-size:12px}.notice{background:#fff6e7;border:1px solid #f0dfbd;color:#8b6827;padding:12px 15px;border-radius:9px;font-size:11px;line-height:1.8;margin:12px 0}
+
+    .header-actions{position:relative}.notification-wrap{position:relative}.notification-button{position:relative;border:1px solid #ffffff50;background:#ffffff12;color:#fff;border-radius:9px;padding:9px 12px;font-size:12px;cursor:pointer}.notification-count{position:absolute;top:-7px;left:-7px;min-width:19px;height:19px;border-radius:20px;background:#e3b84e;color:#102b4d;display:grid;place-items:center;font-size:10px;font-weight:900;padding:0 4px}.notification-popover{position:absolute;top:48px;left:0;width:min(360px,88vw);background:#fff;color:#193653;border:1px solid #e6ebf1;border-radius:13px;box-shadow:0 18px 55px #07182d35;z-index:50;overflow:hidden}.notification-head{display:flex;justify-content:space-between;align-items:center;padding:13px 15px;border-bottom:1px solid #edf0f4}.notification-head b{font-size:12px}.notification-head button{border:0;background:none;color:#a27a26;font-size:10px;font-weight:900;cursor:pointer}.notification-list{max-height:360px;overflow:auto}.notification-item{display:flex;width:100%;text-align:right;gap:10px;padding:12px 14px;border:0;border-bottom:1px solid #f0f2f5;background:#fff;cursor:pointer}.notification-item:hover{background:#f7f9fb}.notification-item.unread{background:#fffaf0}.notification-dot{width:9px;height:9px;flex:0 0 9px;border-radius:50%;background:#d9ad43;margin-top:5px}.notification-item b{display:block;font-size:11px;color:#1b3552}.notification-item small{display:block;font-size:10px;color:#8491a1;line-height:1.7;margin-top:3px}.notification-empty{padding:25px;text-align:center;color:#8a97a6;font-size:11px}
     .admin-tabs{display:flex;gap:8px;margin:0 0 15px}.admin-tabs button{border:1px solid #e3e9ef;background:#fff;color:#52667c;border-radius:9px;padding:10px 16px;font-size:11px;font-weight:900;cursor:pointer}.admin-tabs button.active{background:#102b4d;color:#fff;border-color:#102b4d}.account-type{display:inline-block;background:#edf3f8;color:#244d75;padding:5px 9px;border-radius:20px;font-size:10px;font-weight:900}.profile-id{font-size:9px;color:#98a3af;direction:ltr;display:block;max-width:180px;overflow:hidden;text-overflow:ellipsis}.account-actions{display:flex;gap:6px;white-space:nowrap}.account-actions button{border:0;border-radius:7px;padding:7px 9px;font-size:9px;font-weight:900;cursor:pointer}.account-active{background:#e8f6ef;color:#18764e}.account-disabled{background:#fceeee;color:#a33e3e}.modal-shade{position:fixed;inset:0;z-index:40;background:#081a2dcc;display:grid;place-items:center;padding:15px}.detail-modal{background:#fff;border-radius:16px;width:min(720px,100%);max-height:92vh;overflow:auto;padding:23px;position:relative}.close{position:absolute;left:15px;top:13px;border:0;border-radius:50%;width:32px;height:32px;background:#f0f3f6;font-size:20px;cursor:pointer}.detail-modal h2{font-size:19px;color:#102b4d;margin:0 35px 5px 0}.modal-sub{font-size:11px;color:#8592a1;margin:0 0 16px}.gallery{display:flex;gap:8px;overflow:auto;margin-bottom:17px}.gallery img{width:150px;height:115px;object-fit:cover;border-radius:9px;background:#eef1f4}.detail-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.detail-item{background:#f5f7fa;padding:10px;border-radius:8px}.detail-item small{display:block;color:#8a97a6;font-size:9px}.detail-item b{font-size:11px;color:#29435e;word-break:break-word}.description{white-space:pre-line;font-size:11px;line-height:2;color:#63748a;margin-top:14px}.modal-actions{display:flex;gap:8px;margin-top:17px;flex-wrap:wrap}.modal-actions button,.modal-actions a{border:0;border-radius:8px;padding:10px 14px;font-size:11px;font-weight:900;text-decoration:none;cursor:pointer}
     @media(max-width:760px){.admin-header{padding:13px 4%}.brand b{font-size:15px}.header-actions a{display:none}.admin-main{width:94%;margin-top:22px}.welcome{align-items:start;flex-direction:column}.welcome h1{font-size:22px}.stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.stat{padding:12px;gap:8px}.stat-icon{width:35px;height:35px}.stat strong{font-size:20px}.toolbar{align-items:stretch;flex-direction:column}.search{width:100%;min-width:0}.panel-head{padding:14px}.detail-grid{grid-template-columns:1fr 1fr}}
     @media(max-width:390px){.header-actions button{padding:8px}.brand small{font-size:8px}.detail-grid{grid-template-columns:1fr}}
@@ -140,7 +176,16 @@ export default function AdminPage() {
       <style>{css}</style>
       <header className="admin-header">
         <div className="brand"><span className="brand-mark">⌂</span><span><b>حدائق الأهرام</b><small>لوحة تحكم المدير</small></span></div>
-        <div className="header-actions"><a href="/" target="_blank">عرض الموقع ↗</a><button onClick={signOut}>تسجيل الخروج</button></div>
+        <div className="header-actions">
+          <div className="notification-wrap">
+            <button className="notification-button" onClick={()=>setNotificationOpen(open=>!open)} aria-label="الإشعارات">♧ الإشعارات{unreadNotifications>0&&<span className="notification-count">{unreadNotifications>99?"99+":unreadNotifications}</span>}</button>
+            {notificationOpen&&<div className="notification-popover">
+              <div className="notification-head"><b>الإشعارات والتنبيهات</b><button disabled={notificationBusy||unreadNotifications===0} onClick={markAllNotificationsRead}>قراءة الكل</button></div>
+              <div className="notification-list">{notifications.length===0?<div className="notification-empty">لا توجد إشعارات حتى الآن.</div>:notifications.map(item=><button key={item.id} className={"notification-item "+(!item.is_read?"unread":"")} onClick={()=>markNotificationRead(item)}><span className="notification-dot" style={{opacity:item.is_read?0.2:1}}/><span><b>{item.title}</b><small>{item.message}</small><small>{new Date(item.created_at).toLocaleString("ar-EG")}</small></span></button>)}</div>
+            </div>}
+          </div>
+          <a href="/" target="_blank">عرض الموقع ↗</a><button onClick={signOut}>تسجيل الخروج</button>
+        </div>
       </header>
       <section className="admin-main">
         {checking ? <p>جارٍ التحقق من حساب المدير...</p> : <>
