@@ -25,7 +25,7 @@ export default function AdminPage() {
 
   const loadProfiles = useCallback(async () => {
     if (!supabase) return;
-    const { data, error: queryError } = await supabase.from("profiles").select("id,full_name,phone,account_type,created_at").order("created_at", { ascending: false });
+    const { data, error: queryError } = await supabase.from("profiles").select("id,full_name,phone,account_type,email,created_at").order("created_at", { ascending: false });
     if (queryError) setProfileError("تعذر تحميل الحسابات: " + queryError.message);
     else { setProfiles(data || []); setProfileError(""); }
   }, []);
@@ -55,7 +55,7 @@ export default function AdminPage() {
       if (!alive) return;
       if (queryError) setError("تعذر تحميل الإعلانات: " + queryError.message);
       else setListings(data || []);
-      const { data: profileRows, error: profileQueryError } = await supabase.from("profiles").select("id,full_name,phone,account_type,created_at").order("created_at", { ascending: false });
+      const { data: profileRows, error: profileQueryError } = await supabase.from("profiles").select("id,full_name,phone,account_type,email,created_at").order("created_at", { ascending: false });
       if (profileQueryError) setProfileError("تعذر تحميل الحسابات: " + profileQueryError.message);
       else setProfiles(profileRows || []);
       setChecking(false);
@@ -166,7 +166,7 @@ export default function AdminPage() {
                   <td><b>{profile.full_name || "بدون اسم"}</b><span className="profile-id">{profile.id}</span></td>
                   <td><span className="account-type">{profile.account_type || "مالك"}</span></td>
                   <td>{profile.phone || "—"}</td>
-                  <td>{listings.find(item=>item.submitted_by===profile.id)?.submitted_email || "—"}</td>
+                  <td>{profile.email || listings.find(item=>item.submitted_by===profile.id)?.submitted_email || "—"}</td>
                   <td>{profileCounts[profile.id] || 0}</td>
                   <td>{profile.created_at?new Date(profile.created_at).toLocaleDateString("ar-EG"):"—"}</td>
                 </tr>)}
