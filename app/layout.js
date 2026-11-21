@@ -1,4 +1,5 @@
 import "./globals.css";
+import SupportChat from "./SupportChat";
 
 export const metadata = {
   title: {
@@ -21,7 +22,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="ar" dir="rtl">
-      <body>{children}</body>
+      <body>{children}<SupportChat /></body>
     </html>
   );
 }
