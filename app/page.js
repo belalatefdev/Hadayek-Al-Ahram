@@ -28,6 +28,7 @@ export default function Home() {
   const [submitted, setSubmitted] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("كاش");
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     let active = true;
