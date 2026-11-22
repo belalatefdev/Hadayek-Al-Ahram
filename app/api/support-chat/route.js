@@ -43,9 +43,6 @@ export async function POST(request) {
       return NextResponse.json({ error: "طلبات كثيرة خلال وقت قصير. انتظر دقيقة وحاول مرة أخرى." }, { status: 429 });
     }
     const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json({ error: "مساعد الدعم غير متاح حاليًا. يمكنك التواصل مع الدعم الفني عبر bilalatef88@gmail.com." }, { status: 503 });
-    }
     const contentLength = Number(request.headers.get("content-length") || 0);
     if (contentLength > MAX_REQUEST_BYTES) {
       return NextResponse.json({ error: "المحادثة طويلة جدًا. قلل الرسائل وحاول مرة أخرى." }, { status: 413 });
@@ -84,8 +81,21 @@ export async function POST(request) {
     if (!safeMessages.length || safeMessages[safeMessages.length - 1].role !== "user") {
       return NextResponse.json({ error: "اكتب سؤالك أولًا." }, { status: 400 });
     }
+    // Keep common site-support questions working even when the AI key isn't configured.
+    if (!apiKey) {
+      const question = safeMessages[safeMessages.length - 1].content.toLowerCase();
+      let reply = "أقدر أساعدك في استخدام الموقع (التسجيل، الإعلانات، الصور، البحث والمتابعة). لو سؤالك عام ومحتاج إجابة ذكاء اصطناعي كاملة، الخدمة الذكية محتاجة تفعيل. للدعم المباشر: bilalatef88@gmail.com";
+      if (/اضاف|نشر|اعلان|إعلان|بيع|إيجار/.test(question)) reply = "لإضافة إعلان: سجّل الدخول أولًا، ثم اضغط «أضف إعلان»، واكمل بيانات العقار والسعر والمساحة والتفاصيل والصور، ثم أرسل الإعلان للمراجعة. الإعلان يظهر بعد اعتماده.";
+      else if /تسجيل|دخول|حساب|كلمة.?السر|password|login/.test(question) reply = "للتسجيل أو الدخول: افتح صفحة «حسابي» واختار إنشاء حساب أو تسجيل الدخول. لو رسالة التحقق لم تصل، راجع البريد والـSpam وانتظر قليلًا قبل إعادة الطلب.";
+      else if /صور|صورة|رفع/.test(question) reply = "داخل نموذج الإعلان، استخدم منطقة رفع الصور واختار صور العقار من جهازك. يُفضّل صور واضحة، وتأكد من إكمال الرفع قبل إرسال الإعلان.";
+      else if /بحث|فلتر|فلتر|مساحة|سعر|بوابة|المنطقة/.test(question) reply = "استخدم البحث أعلى الصفحة لتحديد نوع العقار، بيع أو إيجار، البوابة، وحدود السعر والمساحة. يمكنك تعديل الفلاتر ثم عرض النتائج المناسبة.";
+      else if /متابع|حالة|اعلانى|إعلاني|إعلاناتى|إعلاناتي/.test(question) reply = "لمتابعة إعلانك، سجّل الدخول وافتح «إعلاناتي» لمراجعة حالة الإعلان. الإعلانات الجديدة قد تظهر كقيد المراجعة قبل نشرها.";
+      else if /واتساب|اتصل|تواصل|مالك/.test(question) reply = "يمكنك التواصل مع صاحب الإعلان من صفحة العقار باستخدام خيارات التواصل المتاحة هناك. لا ترسل بيانات تسجيل الدخول أو أي معلومات حساسة في الشات.";
+      return NextResponse.json({ reply, mode: "help-fallback" });
+    }
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
+      signal: AbortSignal.timeout(25000),
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
         model: "gpt-4.1-mini",
