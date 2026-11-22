@@ -12,3 +12,8 @@ create policy "Admin can manage profile activation"
 on public.profiles for update to authenticated
 using (lower(coalesce(auth.jwt() ->> 'email', '')) = 'bilalatef88@gmail.com')
 with check (lower(coalesce(auth.jwt() ->> 'email', '')) = 'bilalatef88@gmail.com');
+-- Trigger/event functions should not be callable directly through the Data API.
+revoke execute on function public.handle_new_user_profile() from public, anon, authenticated;
+revoke execute on function public.notify_admin_new_account() from public, anon, authenticated;
+revoke execute on function public.notify_admin_new_listing() from public, anon, authenticated;
+revoke execute on function public.rls_auto_enable() from public, anon, authenticated;
