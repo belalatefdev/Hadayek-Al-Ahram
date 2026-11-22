@@ -8,17 +8,28 @@ const SYSTEM_PROMPT = `أنت مساعد ذكاء اصطناعي ودود ومف
 
 أجب عن الأسئلة العامة ولا ترفضها لمجرد أنها خارج نطاق الموقع. التزم بالسلامة والقانون، وقدم إجابات عملية ومختصرة ما لم يطلب المستخدم تفاصيل أكثر.`;
 
+const MAX_REQUEST_BYTES = 24000;
+const MAX_MESSAGES = 12;
+const MAX_MESSAGE_CHARS = 1500;
+
 export async function POST(request) {
   try {
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       return NextResponse.json({ error: "مساعد الدعم غير متاح حاليًا. يمكنك التواصل مع الدعم الفني عبر bilalatef88@gmail.com." }, { status: 503 });
     }
+    const contentLength = Number(request.headers.get("content-length") || 0);
+    if (contentLength > MAX_REQUEST_BYTES) {
+      return NextResponse.json({ error: "المحادثة طويلة جدًا. قلل الرسائل وحاول مرة أخرى." }, { status: 413 });
+    }
     const body = await request.json();
-    const messages = Array.isArray(body?.messages) ? body.messages.slice(-12) : [];
+    if (!Array.isArray(body?.messages) || body.messages.length > MAX_MESSAGES) {
+      return NextResponse.json({ error: "عدد الرسائل غير صالح. حاول إرسال آخر سؤال فقط." }, { status: 400 });
+    }
+    const messages = body.messages.slice(-MAX_MESSAGES);
     const safeMessages = messages
       .filter((m) => m && ["user", "assistant"].includes(m.role) && typeof m.content === "string")
-      .map((m) => ({ role: m.role, content: m.content.slice(0, 1500) }));
+      .map((m) => ({ role: m.role, content: m.content.slice(0, MAX_MESSAGE_CHARS) }));
     if (!safeMessages.length || safeMessages[safeMessages.length - 1].role !== "user") {
       return NextResponse.json({ error: "اكتب سؤالك أولًا." }, { status: 400 });
     }
