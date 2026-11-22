@@ -9,6 +9,7 @@ create table if not exists public.listings (
   property_type text not null,
   gate text,
   price numeric not null check (price >= 0),
+  price_per_meter numeric,
   area numeric,
   bedrooms integer,
   bathrooms integer,
@@ -18,7 +19,16 @@ create table if not exists public.listings (
   image_urls text[] not null default '{}',
   status text not null default 'pending' check (status in ('pending','published','rejected')),
   submitted_by uuid references auth.users(id) on delete set null,
-  submitted_email text
+  submitted_email text,
+  price_unit text not null default 'إجمالي العقار',
+  payment_method text not null default 'كاش',
+  down_payment numeric,
+  installment_years integer,
+  monthly_installment numeric,
+  floor text,
+  finishing text,
+  building_age text,
+  address_details text
 );
 
 alter table public.listings enable row level security;
@@ -38,11 +48,13 @@ with check ((auth.jwt() ->> 'email') = 'bilalatef88@gmail.com');
 
 -- السماح للزوار بإرسال إعلان جديد للمراجعة فقط؛ لا يمكنهم نشره مباشرة
 drop policy if exists "Public can submit pending listings" on public.listings;
-create policy "Public can submit pending listings"
+drop policy if exists "Users can submit own pending listings" on public.listings;
+create policy "Users can submit own pending listings"
 on public.listings for insert
-to anon, authenticated
+to authenticated
 with check (
-  status = 'pending'
+  (select auth.uid()) = submitted_by
+  and status = 'pending'
   and length(trim(coalesce(contact_name, ''))) > 0
   and length(trim(coalesce(phone, ''))) > 0
 );
