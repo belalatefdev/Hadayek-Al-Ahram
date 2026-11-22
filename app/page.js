@@ -38,7 +38,8 @@ export default function Home() {
   const [priceUnit, setPriceUnit] = useState("إجمالي العقار");
   const [imagePreviews, setImagePreviews] = useState([]);
   const [submitting, setSubmitting] = useState(false);
-  const [listingStep, setListingStep] = useState(0);\n  const listingStepNames = ["بيانات الإعلان", "السعر والمواصفات", "التواصل", "الصور والوصف", "مراجعة الإعلان"];
+  const [listingStep, setListingStep] = useState(0);
+  const listingStepNames = ["بيانات الإعلان", "السعر والمواصفات", "التواصل", "الصور والوصف", "مراجعة الإعلان"];
 
   useEffect(() => {
     try { const saved = JSON.parse(localStorage.getItem("hadayek-favorites") || "[]"); if (Array.isArray(saved)) setFavorites(saved); } catch { /* ignore corrupt saved favorites */ }
