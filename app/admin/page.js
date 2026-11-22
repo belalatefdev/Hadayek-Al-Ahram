@@ -75,25 +75,31 @@ export default function AdminPage() {
   useEffect(() => {
     let alive = true;
     async function load() {
-      if (!supabase) { setError("إعدادات Supabase غير مكتملة."); setChecking(false); return; }
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session || session.user.email?.toLowerCase() !== ADMIN_EMAIL) {
-        await supabase.auth.signOut();
-        router.replace("/login");
-        return;
+      try {
+        if (!supabase) { setError("إعدادات Supabase غير مكتملة."); return; }
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session || session.user.email?.toLowerCase() !== ADMIN_EMAIL) {
+          await supabase.auth.signOut();
+          router.replace("/login");
+          return;
+        }
+        if (!alive) return;
+        setEmail(session.user.email);
+        const { data, error: queryError } = await supabase.from("listings").select("*").order("created_at", { ascending: false });
+        if (!alive) return;
+        if (queryError) setError("تعذر تحميل الإعلانات: " + queryError.message);
+        else setListings(data || []);
+        const { data: profileRows, error: profileQueryError } = await supabase.from("profiles").select("id,full_name,phone,account_type,email,created_at,is_active").order("created_at", { ascending: false });
+        const { data: notificationRows } = await supabase.from("admin_notifications").select("*").order("created_at", { ascending: false }).limit(40);
+        if (!alive) return;
+        if (notificationRows) setNotifications(notificationRows);
+        if (profileQueryError) setProfileError("تعذر تحميل الحسابات: " + profileQueryError.message);
+        else setProfiles(profileRows || []);
+      } catch (err) {
+        if (alive) setError("حصلت مشكلة أثناء تحميل لوحة الإدارة: " + (err?.message || "حاول تحديث الصفحة."));
+      } finally {
+        if (alive) setChecking(false);
       }
-      if (!alive) return;
-      setEmail(session.user.email);
-      const { data, error: queryError } = await supabase.from("listings").select("*").order("created_at", { ascending: false });
-      if (!alive) return;
-      if (queryError) setError("تعذر تحميل الإعلانات: " + queryError.message);
-      else setListings(data || []);
-      const { data: profileRows, error: profileQueryError } = await supabase.from("profiles").select("id,full_name,phone,account_type,email,created_at,is_active").order("created_at", { ascending: false });
-      const { data: notificationRows } = await supabase.from("admin_notifications").select("*").order("created_at", { ascending: false }).limit(40);
-      if (notificationRows) setNotifications(notificationRows);
-      if (profileQueryError) setProfileError("تعذر تحميل الحسابات: " + profileQueryError.message);
-      else setProfiles(profileRows || []);
-      setChecking(false);
     }
     load();
     const { data: listener } = supabase?.auth.onAuthStateChange((_event, session) => {
