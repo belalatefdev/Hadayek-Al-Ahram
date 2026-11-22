@@ -144,7 +144,19 @@ export default function AdminPage() {
     return counts;
   }, [listings]);
 
-  const visibleProfiles = useMemo(() => profiles.filter(profile => {
+  const analytics = useMemo(() => {
+    const now = new Date();
+    const thisMonth = listings.filter(item => {
+      if (!item.created_at) return false;
+      const d = new Date(item.created_at);
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    }).length;
+    const avgPriceItems = listings.filter(item => item.price && item.deal_type !== "إيجار");
+    const averagePrice = avgPriceItems.length ? Math.round(avgPriceItems.reduce((sum,item)=>sum+Number(item.price||0),0)/avgPriceItems.length) : 0;
+    const activeProfiles = profiles.filter(profile=>profile.is_active!==false).length;
+    return {thisMonth, averagePrice, activeProfiles};
+  }, [listings, profiles]);
+\n  const visibleProfiles = useMemo(() => profiles.filter(profile => {
     const haystack = [profile.full_name, profile.phone, profile.account_type, profile.email].join(" ").toLowerCase();
     return haystack.includes(search.trim().toLowerCase());
   }), [profiles, search]);
@@ -175,7 +187,7 @@ export default function AdminPage() {
     .brand-mark{box-shadow:inset 0 0 0 1px #e2bb5b35}.admin-main{margin-top:34px}
     .welcome{background:#fff;border:1px solid #e7edf3;border-radius:16px;padding:20px 23px;box-shadow:0 7px 24px #18355208}
     .welcome h1{letter-spacing:-.4px}.stats{gap:15px}.stat{border-radius:15px;box-shadow:0 5px 18px #18355206;transition:transform .18s,box-shadow .18s}.stat:hover{transform:translateY(-2px);box-shadow:0 10px 24px #18355210}
-    .admin-tabs button{padding:11px 17px;border-radius:10px;transition:.18s}.admin-tabs button.active{box-shadow:0 5px 14px #102b4d20}
+.analytics-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:14px}.analytics-card{background:#fff;border:1px solid #e7ecf2;border-radius:13px;padding:16px}.analytics-card small{display:block;font-size:10px;color:#8794a3}.analytics-card strong{display:block;font-size:22px;color:#173653;margin-top:5px}.analytics-panel{background:#fff;border:1px solid #e7ecf2;border-radius:13px;padding:18px;margin-bottom:14px}.analytics-panel h3{margin:0 0 16px;font-size:14px;color:#173653}.analytics-bar-row{display:grid;grid-template-columns:100px 1fr 40px;align-items:center;gap:9px;margin:12px 0;font-size:10px;color:#65768a}.analytics-track{height:12px;background:#f0f3f6;border-radius:12px;overflow:hidden}.analytics-fill{height:100%;border-radius:12px}.analytics-fill.pending{background:#d5a73f}.analytics-fill.published{background:#2c9965}.analytics-fill.rejected{background:#c95b5b}@media(max-width:760px){.analytics-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.analytics-panel{padding:14px}.analytics-bar-row{grid-template-columns:80px 1fr 32px;gap:6px}}\n    .admin-tabs button{padding:11px 17px;border-radius:10px;transition:.18s}.admin-tabs button.active{box-shadow:0 5px 14px #102b4d20}
     .toolbar,.table-panel{border-radius:15px;box-shadow:0 5px 20px #18355206}.toolbar{padding:16px}.search:focus{border-color:#c49b3d;outline:none;box-shadow:0 0 0 3px #d9ad4320}
     .table-panel{overflow:hidden}.panel-head{padding:18px 20px}.table-scroll table{min-width:850px}th{background:#f6f8fb}tbody tr{transition:background .15s}tbody tr:hover{background:#fbfcfd}td{padding-top:15px;padding-bottom:15px}
     .thumb{border:1px solid #e8edf2}.actions button,.account-actions button{transition:transform .15s,filter .15s}.actions button:hover,.account-actions button:hover{transform:translateY(-1px);filter:brightness(.97)}
@@ -210,7 +222,7 @@ export default function AdminPage() {
           </div>
           <div className="admin-tabs">
             <button className={activeTab==="listings"?"active":""} onClick={()=>setActiveTab("listings")}>إدارة الإعلانات ({listings.length})</button>
-            <button className={activeTab==="accounts"?"active":""} onClick={()=>{setActiveTab("accounts");if(!profiles.length)loadProfiles();}}>إدارة الحسابات ({profiles.length})</button>
+            <button className={activeTab==="analytics"?"active":""} onClick={()=>setActiveTab("analytics")}>الإحصائيات</button>\n            <button className={activeTab==="accounts"?"active":""} onClick={()=>{setActiveTab("accounts");if(!profiles.length)loadProfiles();}}>إدارة الحسابات ({profiles.length})</button>
           </div>
           <div className="toolbar">
             <div className="filters">
@@ -219,7 +231,13 @@ export default function AdminPage() {
             <input className="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="ابحث بالعنوان أو البوابة أو رقم الهاتف..."/>
           </div>
           {error && <div className="notice">{error}</div>}
-          {activeTab==="listings" ? <div className="table-panel">
+          {activeTab==="analytics" ? <><div className="analytics-grid">
+            <div className="analytics-card"><small>إعلانات هذا الشهر</small><strong>{analytics.thisMonth}</strong></div>
+            <div className="analytics-card"><small>حسابات نشطة</small><strong>{analytics.activeProfiles}</strong></div>
+            <div className="analytics-card"><small>متوسط سعر البيع</small><strong>{money(analytics.averagePrice)} ج.م</strong></div>
+          </div><div className="analytics-panel"><h3>توزيع حالات الإعلانات</h3>
+            {[[ "pending","قيد المراجعة",counts.pending],["published","منشور",counts.published],["rejected","مرفوض",counts.rejected]].map(([key,label,value])=><div className="analytics-bar-row" key={key}><span>{label}</span><div className="analytics-track"><div className={"analytics-fill "+key} style={{width:counts.all?Math.max(value/counts.all*100,value?4:0)+"%":"0%"}}/></div><b>{value}</b></div>)}
+          </div><div className="analytics-panel"><h3>ملخص سريع</h3><p style={{fontSize:11,color:"#65768a",lineHeight:2,margin:0}}>إجمالي الإعلانات: {counts.all} · المنشورة: {counts.published} · تحت المراجعة: {counts.pending} · المرفوضة: {counts.rejected}.</p></div></> : null}\n          {activeTab==="listings" ? <div className="table-panel">
             <div className="panel-head"><h2>قائمة الإعلانات</h2><span>{visible.length} نتيجة · <button onClick={loadListings} disabled={refreshing} style={{border:0,background:"none",color:"#24527d",fontWeight:900,cursor:"pointer"}}>{refreshing?"جارٍ التحديث...":"تحديث ↻"}</button></span></div>
             {visible.length===0 ? <div className="empty">{listings.length===0?"لا توجد إعلانات محفوظة حتى الآن.":"لا توجد نتائج مطابقة للبحث."}</div> :
               <div className="table-scroll"><table><thead><tr><th>العقار</th><th>السعر</th><th>المعلن</th><th>الحالة</th><th>التاريخ</th><th>الإجراءات</th></tr></thead><tbody>
