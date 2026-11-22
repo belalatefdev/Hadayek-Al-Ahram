@@ -82,7 +82,8 @@ export default function ListingDetails() {
           <button type="button" className="share-facebook" onClick={()=>{window.open("https://www.facebook.com/sharer/sharer.php?u="+encodeURIComponent(window.location.href),"_blank","noopener,noreferrer");}}>فيسبوك</button>
           <button type="button" className="share-copy" onClick={async()=>{try{await navigator.clipboard.writeText(window.location.href);setCopied(true);setTimeout(()=>setCopied(false),2000);}catch{setCopied(false);}}}>{copied?"تم نسخ الرابط ✓":"نسخ الرابط"}</button>
         </div>
-      </div>\n<small className="property-safety">نصيحة: عاين العقار بنفسك وتأكد من صحة المستندات والبيانات قبل إتمام أي اتفاق.</small></aside>
+      </div>
+<small className="property-safety">نصيحة: عاين العقار بنفسك وتأكد من صحة المستندات والبيانات قبل إتمام أي اتفاق.</small></aside>
         </div>
       </>}
     </div>
