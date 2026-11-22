@@ -13,7 +13,7 @@ export default function ListingDetails() {
   const [loading,setLoading]=useState(true);
   const [error,setError]=useState("");
   const [activeImage,setActiveImage]=useState(0);
-  const [lightbox,setLightbox]=useState(false);
+  const [lightbox,setLightbox]=useState(false);\n  const [copied,setCopied]=useState(false);
 
   useEffect(()=>{
     let active=true;
@@ -75,7 +75,14 @@ export default function ListingDetails() {
               <h2 style={{marginTop:25}}>وصف الإعلان</h2><p className={listing.description?.trim()?"property-description":"property-description-empty"}>{(listing.description||"لم يضف المعلن تفاصيل إضافية لهذا العقار.").replace(/^نوع الحساب:.*\n?/m,"").trim()}</p>
             </div>
           </section>
-          <aside className="property-contact"><span className="property-label">مهتم بالعقار؟</span><h2>تواصل مع المعلن</h2><p>اسأل عن التفاصيل أو اتفق على موعد لمعاينة العقار.</p>{phone?<><a className="property-whatsapp" href={`https://wa.me/${whatsappPhone}?text=${whatsappMessage}`} target="_blank" rel="noreferrer">تواصل عبر واتساب</a><a className="property-call" href={`tel:${listing.phone}`}>اتصال هاتفي · {listing.phone}</a></>:<p>بيانات التواصل غير متاحة حالياً.</p>}<small className="property-safety">نصيحة: عاين العقار بنفسك وتأكد من صحة المستندات والبيانات قبل إتمام أي اتفاق.</small></aside>
+          <aside className="property-contact"><span className="property-label">مهتم بالعقار؟</span><h2>تواصل مع المعلن</h2><p>اسأل عن التفاصيل أو اتفق على موعد لمعاينة العقار.</p>{phone?<><a className="property-whatsapp" href={`https://wa.me/${whatsappPhone}?text=${whatsappMessage}`} target="_blank" rel="noreferrer">تواصل عبر واتساب</a><a className="property-call" href={`tel:${listing.phone}`}>اتصال هاتفي · {listing.phone}</a></>:<p>بيانات التواصل غير متاحة حالياً.</p>}<div className="property-share">
+        <div className="property-share-title">شارك الإعلان</div>
+        <div className="property-share-buttons">
+          <button type="button" className="share-whatsapp" onClick={()=>{const url=window.location.href;const text=encodeURIComponent((listing?.title||"عقار في حدائق الأهرام")+"\\n"+url);window.open("https://wa.me/?text="+text,"_blank","noopener,noreferrer");}}>واتساب</button>
+          <button type="button" className="share-facebook" onClick={()=>{window.open("https://www.facebook.com/sharer/sharer.php?u="+encodeURIComponent(window.location.href),"_blank","noopener,noreferrer");}}>فيسبوك</button>
+          <button type="button" className="share-copy" onClick={async()=>{try{await navigator.clipboard.writeText(window.location.href);setCopied(true);setTimeout(()=>setCopied(false),2000);}catch{setCopied(false);}}}>{copied?"تم نسخ الرابط ✓":"نسخ الرابط"}</button>
+        </div>
+      </div>\n<small className="property-safety">نصيحة: عاين العقار بنفسك وتأكد من صحة المستندات والبيانات قبل إتمام أي اتفاق.</small></aside>
         </div>
       </>}
     </div>
