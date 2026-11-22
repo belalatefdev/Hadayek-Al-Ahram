@@ -17,8 +17,7 @@ const RATE_LIMIT_MAX = 8;
 const rateLimitStore = globalThis.__hadayekSupportRateLimit || (globalThis.__hadayekSupportRateLimit = new Map());
 
 function rateLimit(request) {
-  const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  const key = forwarded || request.headers.get("x-real-ip") || "unknown";
+  const key = request.headers.get("x-real-ip") || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
   const now = Date.now();
   for (const [ip, entry] of rateLimitStore) {
     if (now - entry.start >= RATE_LIMIT_WINDOW_MS) rateLimitStore.delete(ip);
