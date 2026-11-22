@@ -13,7 +13,8 @@ export default function ListingDetails() {
   const [loading,setLoading]=useState(true);
   const [error,setError]=useState("");
   const [activeImage,setActiveImage]=useState(0);
-  const [lightbox,setLightbox]=useState(false);\n  const [copied,setCopied]=useState(false);
+  const [lightbox,setLightbox]=useState(false);
+  const [copied,setCopied]=useState(false);
 
   useEffect(()=>{
     let active=true;
