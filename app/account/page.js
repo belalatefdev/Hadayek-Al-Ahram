@@ -34,26 +34,34 @@ export default function AccountPage() {
     e.preventDefault();
     setMessage("");
     if (!supabase) { setMessage("إعدادات الاتصال بقاعدة البيانات غير مكتملة."); return; }
+    if (!email.trim()) { setMessage("اكتب البريد الإلكتروني."); return; }
     if (password.length < 8) { setMessage("كلمة المرور يجب ألا تقل عن 8 أحرف."); return; }
+    if (mode === "signup" && (!fullName.trim() || !phone.trim())) { setMessage("اكتب الاسم بالكامل ورقم الموبايل."); return; }
     setLoading(true);
-    if (mode === "signup") {
-      const { data, error } = await supabase.auth.signUp({
-        email: email.trim(), password,
-        options: { data: { full_name: fullName.trim(), phone: phone.trim(), account_type: accountType }, emailRedirectTo: window.location.origin + "/my-listings" }
-      });
-      if (error) setMessage("تعذر إنشاء الحساب: " + error.message);
-      else if (data.session) router.replace("/my-listings");
-      else setMessage("تم إنشاء الحساب بنجاح. يمكنك الآن تسجيل الدخول ومتابعة إعلاناتك.");
-    } else {
-      const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-      if (error) setMessage("بيانات الدخول غير صحيحة أو الحساب لم يتم تأكيده: " + error.message);
-      else {
-        const { data: profile } = await supabase.from("profiles").select("is_active").eq("id", data.user.id).maybeSingle();
-        if (profile?.is_active === false) { await supabase.auth.signOut(); setMessage("هذا الحساب موقوف حالياً. تواصل مع إدارة المنصة."); }
-        else router.replace("/my-listings");
+    try {
+      if (mode === "signup") {
+        const { data, error } = await supabase.auth.signUp({
+          email: email.trim(), password,
+          options: { data: { full_name: fullName.trim(), phone: phone.trim(), account_type: accountType }, emailRedirectTo: window.location.origin + "/my-listings" }
+        });
+        if (error) setMessage("تعذر إنشاء الحساب: " + error.message);
+        else if (data.session) router.replace("/my-listings");
+        else setMessage("تم إنشاء الحساب بنجاح. راجع بريدك لتأكيد الحساب، ثم سجّل الدخول.");
+      } else {
+        const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+        if (error) setMessage("بيانات الدخول غير صحيحة أو الحساب لم يتم تأكيده: " + error.message);
+        else if (data?.user) {
+          const { data: profile, error: profileError } = await supabase.from("profiles").select("is_active").eq("id", data.user.id).maybeSingle();
+          if (profileError) setMessage("تعذر التحقق من حالة الحساب. حاول مرة أخرى.");
+          else if (profile?.is_active === false) { await supabase.auth.signOut(); setMessage("هذا الحساب موقوف حالياً. تواصل مع إدارة المنصة."); }
+          else router.replace("/my-listings");
+        } else setMessage("تعذر إتمام تسجيل الدخول. حاول مرة أخرى.");
       }
+    } catch (err) {
+      setMessage("حصلت مشكلة غير متوقعة: " + (err?.message || "حاول مرة أخرى."));
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   return (
