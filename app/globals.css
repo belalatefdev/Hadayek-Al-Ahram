@@ -331,3 +331,13 @@ footer{padding-top:25px;padding-bottom:25px}
 .favorites-filter{border:1px solid #e5d7b4;background:#fffaf0;color:#9a772c;border-radius:22px;padding:8px 12px;font-size:11px;font-weight:900;cursor:pointer}
 .favorites-filter.active{background:#102b4d;color:#fff;border-color:#102b4d}
 @media(max-width:700px){.result-tools{gap:7px}.favorites-filter{font-size:9px;padding:7px 10px}}
+
+
+/* Modern property-post form grouping */
+.listing-form-intro{display:flex;align-items:center;gap:13px;background:linear-gradient(120deg,#f3f7fb,#fff);border:1px solid #e4ebf2;border-radius:13px;padding:14px 16px;margin:8px 0 18px}
+.listing-form-icon{width:42px;height:42px;display:grid;place-items:center;flex:0 0 auto;border-radius:12px;background:#102b4d;color:#e1b94e;font-size:24px;font-weight:900}
+.listing-form-intro b,.listing-form-intro small{display:block}.listing-form-intro b{font-size:13px;color:#183956}.listing-form-intro small{font-size:10px;color:#718398;margin-top:3px;line-height:1.8}
+.listing-form-section-title{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px;border-right:3px solid #d9ad43;background:#f7f9fb;padding:10px 12px;border-radius:8px;margin-top:5px;color:#193957}
+.listing-form-section-title b{font-size:12px}.listing-form-section-title span{font-size:10px;color:#8493a4;font-weight:700}
+.listing-modal .form-grid-wide input{width:100%}
+@media(max-width:520px){.listing-form-section-title{align-items:flex-start;flex-direction:column;gap:3px}.listing-form-section-title span{font-size:9px}.listing-form-intro{padding:11px}.listing-form-intro b{font-size:12px}}
