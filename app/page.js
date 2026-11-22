@@ -94,7 +94,7 @@ export default function Home() {
         </div>
         <div className="wrap search-wrap"><div className="search-box">
           <label><span>نوع العملية</span><select value={deal} onChange={e=>setDeal(e.target.value)}><option>الكل</option><option>للبيع</option><option>للإيجار</option></select></label>
-          <label><span>نوع العقار</span><select value={kind} onChange={e=>setKind(e.target.value)}><option>الكل</option><option>شقة</option><option>دوبلكس</option><option>محل تجاري</option></select></label>
+          <label><span>نوع العقار</span><select value={kind} onChange={e=>setKind(e.target.value)}><option>الكل</option><option>شقة</option><option>دوبلكس</option><option>محل تجاري</option><option>أرض</option><option>فيلا</option></select></label>
           <label><span>المنطقة / البوابة</span><select value={gate} onChange={e=>setGate(e.target.value)}>{gates.map(g=><option key={g}>{g}</option>)}</select></label>
           <label><span>أقل سعر</span><input value={minPrice} onChange={e=>setMinPrice(e.target.value)} inputMode="numeric" placeholder="من"/></label>
           <label><span>أقصى سعر بالجنيه</span><input value={maxPrice} onChange={e=>setMaxPrice(e.target.value)} inputMode="numeric" placeholder="إلى"/></label>
