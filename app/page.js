@@ -11,7 +11,7 @@ const sampleListings = [
   { id: 5, title: "محل تجاري بموقع حيوي", gate: "البوابة الأولى", kind: "تجاري", deal: "للإيجار", price: 18000, area: 75, rooms: 0, baths: 1, image: "https://images.unsplash.com/photo-1600607687644-c7171b42498f?auto=format&fit=crop&w=640&q=70", tag: "موقع مميز" },
   { id: 6, title: "شقة واسعة بالقرب من البوابة", gate: "البوابة الثالثة", kind: "شقة", deal: "للإيجار", price: 16000, area: 155, rooms: 3, baths: 2, image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=640&q=70", tag: "جديد" },
 ];
-const gates = ["كل البوابات", "البوابة الأولى", "البوابة الثانية", "البوابة الثالثة", "البوابة الرابعة", "البوابة الخامسة"];
+const gates = ["كل البوابات", "البوابة الأولى", "البوابة الثانية الجديدة", "البوابة الثانية القديمة", "البوابة الثالثة القديمة", "البوابة الثالثة الجديدة", "البوابة الرابعة"];
 const money = (n) => new Intl.NumberFormat("ar-EG").format(n);
 
 export default function Home() {
