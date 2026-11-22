@@ -14,12 +14,12 @@ set
   file_size_limit = excluded.file_size_limit,
   allowed_mime_types = excluded.allowed_mime_types;
 
--- Allow anonymous and signed-in visitors to upload images only under listings/.
+-- Allow authenticated users to upload images only under listings/.
 drop policy if exists "Visitors can upload listing images" on storage.objects;
-create policy "Visitors can upload listing images"
+create policy "Authenticated users can upload listing images"
 on storage.objects
 for insert
-to anon, authenticated
+to authenticated
 with check (
   bucket_id = 'listing-images'
   and (storage.foldername(name))[1] = 'listings'
