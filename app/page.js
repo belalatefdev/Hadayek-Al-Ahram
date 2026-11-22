@@ -18,7 +18,12 @@ export default function Home() {
   const [deal, setDeal] = useState("الكل");
   const [kind, setKind] = useState("الكل");
   const [gate, setGate] = useState("كل البوابات");
+  const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+  const [minArea, setMinArea] = useState("");
+  const [maxArea, setMaxArea] = useState("");
+  const [bedrooms, setBedrooms] = useState("الكل");
+  const [sortOrder, setSortOrder] = useState("newest");
   const [search, setSearch] = useState("");
   const [favorites, setFavorites] = useState([]);
   const [listings, setListings] = useState([]);
@@ -51,9 +56,13 @@ export default function Home() {
     (deal === "الكل" || p.deal === deal) &&
     (kind === "الكل" || p.kind === kind) &&
     (gate === "كل البوابات" || p.gate === gate) &&
+    (!minPrice || p.price >= Number(minPrice)) &&
     (!maxPrice || p.price <= Number(maxPrice)) &&
-    (p.title + p.gate + p.kind).includes(search.trim())
-  ), [listings, deal, kind, gate, maxPrice, search]);
+    (!minArea || p.area >= Number(minArea)) &&
+    (!maxArea || p.area <= Number(maxArea)) &&
+    (bedrooms === "الكل" || Number(p.rooms || 0) >= Number(bedrooms)) &&
+    (p.title + p.gate + p.kind).toLowerCase().includes(search.trim().toLowerCase())
+  ).sort((a,b)=>sortOrder==="price-low"?a.price-b.price:sortOrder==="price-high"?b.price-a.price:0), [listings, deal, kind, gate, minPrice, maxPrice, minArea, maxArea, bedrooms, search, sortOrder]);
 
   const toggleFavorite = (id) => setFavorites((old) => old.includes(id) ? old.filter((x) => x !== id) : [...old, id]);
 
@@ -78,9 +87,15 @@ export default function Home() {
           <label><span>نوع العملية</span><select value={deal} onChange={e=>setDeal(e.target.value)}><option>الكل</option><option>للبيع</option><option>للإيجار</option></select></label>
           <label><span>نوع العقار</span><select value={kind} onChange={e=>setKind(e.target.value)}><option>الكل</option><option>شقة</option><option>دوبلكس</option><option>تجاري</option></select></label>
           <label><span>المنطقة / البوابة</span><select value={gate} onChange={e=>setGate(e.target.value)}>{gates.map(g=><option key={g}>{g}</option>)}</select></label>
-          <label><span>أقصى سعر بالجنيه</span><input value={maxPrice} onChange={e=>setMaxPrice(e.target.value)} inputMode="numeric" placeholder="مثال: 2500000"/></label>
+          <label><span>أقل سعر</span><input value={minPrice} onChange={e=>setMinPrice(e.target.value)} inputMode="numeric" placeholder="من"/></label>
+          <label><span>أقصى سعر بالجنيه</span><input value={maxPrice} onChange={e=>setMaxPrice(e.target.value)} inputMode="numeric" placeholder="إلى"/></label>
+          <label><span>أقل مساحة (م²)</span><input value={minArea} onChange={e=>setMinArea(e.target.value)} inputMode="numeric" placeholder="من"/></label>
+          <label><span>أقصى مساحة (م²)</span><input value={maxArea} onChange={e=>setMaxArea(e.target.value)} inputMode="numeric" placeholder="إلى"/></label>
+          <label><span>غرف النوم (على الأقل)</span><select value={bedrooms} onChange={e=>setBedrooms(e.target.value)}><option>الكل</option>{[1,2,3,4,5,6].map(n=><option key={n} value={n}>{n} غرف</option>)}</select></label>
           <label className="search-text"><span>كلمة بحث</span><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="ابحث عن منطقة أو مواصفات"/></label>
-          <a className="search-btn" href="#listings">ابحث الآن <b>⌕</b></a>
+          <label><span>ترتيب النتائج</span><select value={sortOrder} onChange={e=>setSortOrder(e.target.value)}><option value="newest">الأحدث</option><option value="price-low">السعر الأقل</option><option value="price-high">السعر الأعلى</option></select></label>
+          <a className="search-btn" href="#listings">اعرض النتائج <b>⌕</b></a>
+          <button type="button" className="clear-search-btn" onClick={()=>{setDeal("الكل");setKind("الكل");setGate("كل البوابات");setMinPrice("");setMaxPrice("");setMinArea("");setMaxArea("");setBedrooms("الكل");setSearch("");setSortOrder("newest");}}>مسح الفلاتر</button>
         </div></div>
       </section>
 
