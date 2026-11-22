@@ -1,6 +1,7 @@
 import { useEffect,useMemo,useState } from "react";
 import { ActivityIndicator,FlatList,Image,Pressable,ScrollView,StyleSheet,Text,TextInput,View } from "react-native";
-import { Link } from "expo-router";\nimport AsyncStorage from "@react-native-async-storage/async-storage";
+import { Link, useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { supabase } from "../lib/supabase";
 const gates=["كل البوابات","البوابة الأولى","البوابة الثانية الجديدة","البوابة الثانية القديمة","البوابة الثالثة القديمة","البوابة الثالثة الجديدة","البوابة الرابعة"];
 const n=(v:any)=>new Intl.NumberFormat("ar-EG").format(Number(v)||0);
