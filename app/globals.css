@@ -392,3 +392,11 @@ footer{padding-top:25px;padding-bottom:25px}
  .listing-modal .listing-form-section-title{padding:11px 13px}
  .listing-modal .form-grid label,.listing-modal .full-label{padding:10px}
 }
+
+/* Header logo visibility enhancement */
+.logo-image{width:68px;height:60px;object-fit:contain;flex:0 0 auto;display:block}
+.header-inner{height:90px}
+.logo b{font-size:22px;letter-spacing:.1px}
+.logo small{font-size:11px}
+@media(max-width:700px){.header-inner{height:74px}.logo-image{width:50px;height:46px}.logo b{font-size:17px}.logo small{font-size:9px}}
+@media(max-width:390px){.logo-image{width:44px;height:42px}}
