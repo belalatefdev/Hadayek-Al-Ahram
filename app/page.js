@@ -26,6 +26,8 @@ export default function Home() {
   const [sortOrder, setSortOrder] = useState("newest");
   const [search, setSearch] = useState("");
   const [favorites, setFavorites] = useState([]);
+  const [favoritesLoaded, setFavoritesLoaded] = useState(false);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [listings, setListings] = useState([]);
   const [loadingListings, setLoadingListings] = useState(true);
   const [submitError, setSubmitError] = useState("");
@@ -34,6 +36,13 @@ export default function Home() {
   const [paymentMethod, setPaymentMethod] = useState("كاش");
   const [imagePreviews, setImagePreviews] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    try { const saved = JSON.parse(localStorage.getItem("hadayek-favorites") || "[]"); if (Array.isArray(saved)) setFavorites(saved); } catch { /* ignore corrupt saved favorites */ }
+    setFavoritesLoaded(true);
+  }, []);
+
+  useEffect(() => { if (favoritesLoaded) localStorage.setItem("hadayek-favorites", JSON.stringify(favorites)); }, [favorites, favoritesLoaded]);
 
   useEffect(() => {
     let active = true;
@@ -52,7 +61,7 @@ export default function Home() {
     return () => { active = false; };
   }, []);
 
-  const filteredListings = useMemo(() => listings.filter((p) =>
+  const filteredListings = useMemo(() => listings.filter((p) => (!showFavoritesOnly || favorites.includes(p.id)) &&
     (deal === "الكل" || p.deal === deal) &&
     (kind === "الكل" || p.kind === kind) &&
     (gate === "كل البوابات" || p.gate === gate) &&
@@ -62,7 +71,7 @@ export default function Home() {
     (!maxArea || p.area <= Number(maxArea)) &&
     (bedrooms === "الكل" || Number(p.rooms || 0) >= Number(bedrooms)) &&
     (p.title + p.gate + p.kind).toLowerCase().includes(search.trim().toLowerCase())
-  ).sort((a,b)=>sortOrder==="price-low"?a.price-b.price:sortOrder==="price-high"?b.price-a.price:0), [listings, deal, kind, gate, minPrice, maxPrice, minArea, maxArea, bedrooms, search, sortOrder]);
+  ).sort((a,b)=>sortOrder==="price-low"?a.price-b.price:sortOrder==="price-high"?b.price-a.price:0), [listings, favorites, showFavoritesOnly, deal, kind, gate, minPrice, maxPrice, minArea, maxArea, bedrooms, search, sortOrder]);
 
   const toggleFavorite = (id) => setFavorites((old) => old.includes(id) ? old.filter((x) => x !== id) : [...old, id]);
 
@@ -107,7 +116,7 @@ export default function Home() {
       </section>
 
       <section className="wrap listings-section" id="listings">
-        <div className="section-head"><div><span className="eyebrow">اختار صح</span><h2>عقارات مميزة في حدائق الأهرام</h2><p>تصفح أحدث الفرص المتاحة في البوابات المختلفة.</p></div><div className="result-count">{filteredListings.length} عقار</div></div>
+        <div className="section-head"><div><span className="eyebrow">اختار صح</span><h2>عقارات مميزة في حدائق الأهرام</h2><p>تصفح أحدث الفرص المتاحة في البوابات المختلفة.</p></div><div className="result-tools"><button type="button" className={showFavoritesOnly?"favorites-filter active":"favorites-filter"} onClick={()=>setShowFavoritesOnly(v=>!v)}>{showFavoritesOnly?"♥ عرض المفضلة":"♡ المفضلة فقط"}</button><div className="result-count">{filteredListings.length} عقار</div></div></div>
         <div className="listing-grid">
           {filteredListings.map(p=><article className="listing-card" key={p.id}>
             <div className="listing-photo"><img src={p.image} alt={p.title}/><span className="tag">{p.tag}</span><button aria-label="إضافة للمفضلة" className={favorites.includes(p.id)?"heart active":"heart"} onClick={()=>toggleFavorite(p.id)}>{favorites.includes(p.id)?"♥":"♡"}</button><span className="deal-tag">{p.deal}</span></div>
