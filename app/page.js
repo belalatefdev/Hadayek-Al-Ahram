@@ -30,6 +30,7 @@ export default function Home() {
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [listings, setListings] = useState([]);
   const [loadingListings, setLoadingListings] = useState(true);
+  const [listingLoadError, setListingLoadError] = useState("");
   const [submitError, setSubmitError] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -53,14 +54,15 @@ export default function Home() {
   useEffect(() => {
     let active = true;
     async function loadListings() {
-      if (!supabase) { setLoadingListings(false); return; }
+      if (!supabase) { if (active) setListingLoadError("الاتصال بقاعدة البيانات غير متاح، لذلك تعذر تحميل الإعلانات."); setLoadingListings(false); return; }
       const { data, error } = await supabase.from("listings").select("*").eq("status", "published").order("created_at", { ascending: false });
-      if (active && !error) setListings((data || []).map((p) => ({
+      if (active && error) setListingLoadError("تعذر تحميل العقارات حاليًا. حاول تحديث الصفحة بعد قليل.");
+      if (active && !error) { setListingLoadError(""); setListings((data || []).map((p) => ({
         id: p.id, title: p.title, gate: p.gate || "حدائق الأهرام",
         kind: p.property_type, deal: p.deal_type === "بيع" ? "للبيع" : "للإيجار",
         price: Number(p.price), priceUnit: p.price_unit || "إجمالي العقار", paymentMethod: p.payment_method || "كاش", downPayment: p.down_payment, installmentYears: p.installment_years, monthlyInstallment: p.monthly_installment, area: Number(p.area || 0), rooms: p.bedrooms || 0,
         baths: p.bathrooms || 0, image: p.image_urls?.[0] || "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=640&q=70", tag: "إعلان معتمد"
-      })));
+      }))); }
       if (active) setLoadingListings(false);
     }
     loadListings();
@@ -100,7 +102,7 @@ export default function Home() {
         </div>
         <div className="wrap search-wrap"><div className="search-box">
           <label><span>نوع العملية</span><select value={deal} onChange={e=>setDeal(e.target.value)}><option>الكل</option><option>للبيع</option><option>للإيجار</option></select></label>
-          <label><span>نوع العقار</span><select value={kind} onChange={e=>setKind(e.target.value)}><option>الكل</option><option>شقة</option><option>دوبلكس</option><option>تجاري</option></select></label>
+          <label><span>نوع العقار</span><select value={kind} onChange={e=>setKind(e.target.value)}><option>الكل</option><option>شقة</option><option>دوبلكس</option><option>محل تجاري</option></select></label>
           <label><span>المنطقة / البوابة</span><select value={gate} onChange={e=>setGate(e.target.value)}>{gates.map(g=><option key={g}>{g}</option>)}</select></label>
           <label><span>أقل سعر</span><input value={minPrice} onChange={e=>setMinPrice(e.target.value)} inputMode="numeric" placeholder="من"/></label>
           <label><span>أقصى سعر بالجنيه</span><input value={maxPrice} onChange={e=>setMaxPrice(e.target.value)} inputMode="numeric" placeholder="إلى"/></label>
@@ -129,7 +131,8 @@ export default function Home() {
             <div className="listing-body"><div className="location">⌖ {p.gate}</div><h3>{p.title}</h3><div className="features"><span>▦ {p.area} م²</span><span>▤ {p.rooms || "—"} غرف</span><span>♧ {p.baths} حمام</span></div><div className="listing-bottom"><strong>{money(p.price)} <small>جنيه {p.deal==="للإيجار"?"شهرياً":p.priceUnit==="سعر المتر"?"للمتر":"إجمالي"}</small><span style={{display:"block",marginTop:5,fontSize:9,fontWeight:800,color:p.paymentMethod==="تقسيط"?"#a2761f":"#53708b"}}>{p.paymentMethod||"كاش"}{p.paymentMethod==="تقسيط"&&p.installmentYears?` · ${p.installmentYears} سنة`:""}</span></strong><a className="details-link" href={`/listing/${p.id}`}>تفاصيل العقار ←</a></div></div>
           </article>)}
         </div>
-        {!loadingListings && filteredListings.length === 0 && <p className="sample-warning">لا توجد إعلانات منشورة مطابقة لبحثك حالياً. جرّب تغيير عوامل البحث أو عُد لاحقاً.</p>}
+        {!loadingListings && listingLoadError && <p className="sample-warning" role="alert">{listingLoadError}</p>}
+        {!loadingListings && !listingLoadError && filteredListings.length === 0 && <p className="sample-warning">لا توجد إعلانات منشورة مطابقة لبحثك حالياً. جرّب تغيير عوامل البحث أو عُد لاحقاً.</p>}
         {loadingListings && <p className="sample-warning">جارٍ تحميل العقارات المنشورة...</p>}
       </section>
 
