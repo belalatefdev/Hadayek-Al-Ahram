@@ -11,9 +11,33 @@ const SYSTEM_PROMPT = `أنت مساعد ذكاء اصطناعي ودود ومف
 const MAX_REQUEST_BYTES = 24000;
 const MAX_MESSAGES = 12;
 const MAX_MESSAGE_CHARS = 1500;
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX = 8;
+// Best-effort per-instance limit; production-wide limits should use a shared store.
+const rateLimitStore = globalThis.__hadayekSupportRateLimit || (globalThis.__hadayekSupportRateLimit = new Map());
+
+function rateLimit(request) {
+  const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+  const key = forwarded || request.headers.get("x-real-ip") || "unknown";
+  const now = Date.now();
+  for (const [ip, entry] of rateLimitStore) {
+    if (now - entry.start >= RATE_LIMIT_WINDOW_MS) rateLimitStore.delete(ip);
+  }
+  const entry = rateLimitStore.get(key);
+  if (!entry || now - entry.start >= RATE_LIMIT_WINDOW_MS) {
+    rateLimitStore.set(key, { start: now, count: 1 });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT_MAX) return false;
+  entry.count += 1;
+  return true;
+}
 
 export async function POST(request) {
   try {
+    if (!rateLimit(request)) {
+      return NextResponse.json({ error: "طلبات كثيرة خلال وقت قصير. انتظر دقيقة وحاول مرة أخرى." }, { status: 429 });
+    }
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       return NextResponse.json({ error: "مساعد الدعم غير متاح حاليًا. يمكنك التواصل مع الدعم الفني عبر bilalatef88@gmail.com." }, { status: 503 });
@@ -22,7 +46,14 @@ export async function POST(request) {
     if (contentLength > MAX_REQUEST_BYTES) {
       return NextResponse.json({ error: "المحادثة طويلة جدًا. قلل الرسائل وحاول مرة أخرى." }, { status: 413 });
     }
-    const body = await request.json();
+    const rawBody = await request.text();
+    if (new TextEncoder().encode(rawBody).length > MAX_REQUEST_BYTES) {
+      return NextResponse.json({ error: "المحادثة طويلة جدًا. قلل الرسائل وحاول مرة أخرى." }, { status: 413 });
+    }
+    let body;
+    try { body = JSON.parse(rawBody); } catch {
+      return NextResponse.json({ error: "البيانات المرسلة غير صحيحة." }, { status: 400 });
+    }
     if (!Array.isArray(body?.messages) || body.messages.length > MAX_MESSAGES) {
       return NextResponse.json({ error: "عدد الرسائل غير صالح. حاول إرسال آخر سؤال فقط." }, { status: 400 });
     }
