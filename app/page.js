@@ -4,12 +4,12 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
 
 const sampleListings = [
-  { id: 1, title: "شقة ١٤٠ متر تشطيب سوبر لوكس", gate: "البوابة الأولى", kind: "شقة", deal: "للبيع", price: 2450000, area: 140, rooms: 3, baths: 2, image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=85", tag: "اختيار مميز" },
-  { id: 2, title: "شقة للإيجار قريبة من الخدمات", gate: "البوابة الثانية", kind: "شقة", deal: "للإيجار", price: 14000, area: 125, rooms: 2, baths: 1, image: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=900&q=85", tag: "جديد" },
-  { id: 3, title: "دوبلكس بحديقة خاصة", gate: "البوابة الرابعة", kind: "دوبلكس", deal: "للبيع", price: 4800000, area: 230, rooms: 4, baths: 3, image: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=900&q=85", tag: "مساحة كبيرة" },
-  { id: 4, title: "شقة عائلية بإطلالة مفتوحة", gate: "البوابة الخامسة", kind: "شقة", deal: "للبيع", price: 1980000, area: 132, rooms: 3, baths: 2, image: "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=900&q=85", tag: "فرصة" },
-  { id: 5, title: "محل تجاري بموقع حيوي", gate: "البوابة الأولى", kind: "تجاري", deal: "للإيجار", price: 18000, area: 75, rooms: 0, baths: 1, image: "https://images.unsplash.com/photo-1600607687644-c7171b42498f?auto=format&fit=crop&w=900&q=85", tag: "موقع مميز" },
-  { id: 6, title: "شقة واسعة بالقرب من البوابة", gate: "البوابة الثالثة", kind: "شقة", deal: "للإيجار", price: 16000, area: 155, rooms: 3, baths: 2, image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=85", tag: "جديد" },
+  { id: 1, title: "شقة ١٤٠ متر تشطيب سوبر لوكس", gate: "البوابة الأولى", kind: "شقة", deal: "للبيع", price: 2450000, area: 140, rooms: 3, baths: 2, image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=640&q=70", tag: "اختيار مميز" },
+  { id: 2, title: "شقة للإيجار قريبة من الخدمات", gate: "البوابة الثانية", kind: "شقة", deal: "للإيجار", price: 14000, area: 125, rooms: 2, baths: 1, image: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=640&q=70", tag: "جديد" },
+  { id: 3, title: "دوبلكس بحديقة خاصة", gate: "البوابة الرابعة", kind: "دوبلكس", deal: "للبيع", price: 4800000, area: 230, rooms: 4, baths: 3, image: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=640&q=70", tag: "مساحة كبيرة" },
+  { id: 4, title: "شقة عائلية بإطلالة مفتوحة", gate: "البوابة الخامسة", kind: "شقة", deal: "للبيع", price: 1980000, area: 132, rooms: 3, baths: 2, image: "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=640&q=70", tag: "فرصة" },
+  { id: 5, title: "محل تجاري بموقع حيوي", gate: "البوابة الأولى", kind: "تجاري", deal: "للإيجار", price: 18000, area: 75, rooms: 0, baths: 1, image: "https://images.unsplash.com/photo-1600607687644-c7171b42498f?auto=format&fit=crop&w=640&q=70", tag: "موقع مميز" },
+  { id: 6, title: "شقة واسعة بالقرب من البوابة", gate: "البوابة الثالثة", kind: "شقة", deal: "للإيجار", price: 16000, area: 155, rooms: 3, baths: 2, image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=640&q=70", tag: "جديد" },
 ];
 const gates = ["كل البوابات", "البوابة الأولى", "البوابة الثانية", "البوابة الثالثة", "البوابة الرابعة", "البوابة الخامسة"];
 const money = (n) => new Intl.NumberFormat("ar-EG").format(n);
@@ -53,7 +53,7 @@ export default function Home() {
         id: p.id, title: p.title, gate: p.gate || "حدائق الأهرام",
         kind: p.property_type, deal: p.deal_type === "بيع" ? "للبيع" : "للإيجار",
         price: Number(p.price), priceUnit: p.price_unit || "إجمالي العقار", paymentMethod: p.payment_method || "كاش", downPayment: p.down_payment, installmentYears: p.installment_years, monthlyInstallment: p.monthly_installment, area: Number(p.area || 0), rooms: p.bedrooms || 0,
-        baths: p.bathrooms || 0, image: p.image_urls?.[0] || "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=85", tag: "إعلان معتمد"
+        baths: p.bathrooms || 0, image: p.image_urls?.[0] || "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=640&q=70", tag: "إعلان معتمد"
       })));
       if (active) setLoadingListings(false);
     }
@@ -79,7 +79,7 @@ export default function Home() {
     <main>
       <div className="topline"><div className="wrap topline-inner"><span>★ منصتك العقارية من قلب الجيزة</span><span>بيع • شراء • إيجار</span></div></div>
       <header className="header"><div className="wrap header-inner">
-        <a className="logo" href="#"><img className="logo-image" src="/logo-mark.svg" alt="" /><span><b>حدائق الأهرام</b><small>عقارك بالقرب من الأهرامات</small></span></a>
+        <a className="logo" href="#"><img className="logo-image" src="/logo-mark.svg" alt="" loading="eager" decoding="async" /><span><b>حدائق الأهرام</b><small>عقارك بالقرب من الأهرامات</small></span></a>
         <nav><a href="#home">الرئيسية</a><a href="#listings">عقارات للبيع</a><a href="#listings">عقارات للإيجار</a><a href="#map">الخريطة</a></nav>
         <div style={{display:"flex",alignItems:"center",gap:10}}><a href="/account" style={{fontSize:11,fontWeight:800,color:"#52657d"}}>حسابي</a><button className="add-top" onClick={() => { setSubmitted(false); setShowForm(true); }}>＋ أضف عقارك</button></div>
       </div></header>
@@ -119,7 +119,7 @@ export default function Home() {
         <div className="section-head"><div><span className="eyebrow">اختار صح</span><h2>عقارات مميزة في حدائق الأهرام</h2><p>تصفح أحدث الفرص المتاحة في البوابات المختلفة.</p></div><div className="result-tools"><button type="button" className={showFavoritesOnly?"favorites-filter active":"favorites-filter"} onClick={()=>setShowFavoritesOnly(v=>!v)}>{showFavoritesOnly?"♥ عرض المفضلة":"♡ المفضلة فقط"}</button><div className="result-count">{filteredListings.length} عقار</div></div></div>
         <div className="listing-grid">
           {filteredListings.map(p=><article className="listing-card" key={p.id}>
-            <div className="listing-photo"><img src={p.image} alt={p.title}/><span className="tag">{p.tag}</span><button aria-label="إضافة للمفضلة" className={favorites.includes(p.id)?"heart active":"heart"} onClick={()=>toggleFavorite(p.id)}>{favorites.includes(p.id)?"♥":"♡"}</button><span className="deal-tag">{p.deal}</span></div>
+            <div className="listing-photo"><img src={p.image} alt={p.title} loading="lazy" decoding="async"/><span className="tag">{p.tag}</span><button aria-label="إضافة للمفضلة" className={favorites.includes(p.id)?"heart active":"heart"} onClick={()=>toggleFavorite(p.id)}>{favorites.includes(p.id)?"♥":"♡"}</button><span className="deal-tag">{p.deal}</span></div>
             <div className="listing-body"><div className="location">⌖ {p.gate}</div><h3>{p.title}</h3><div className="features"><span>▦ {p.area} م²</span><span>▤ {p.rooms || "—"} غرف</span><span>♧ {p.baths} حمام</span></div><div className="listing-bottom"><strong>{money(p.price)} <small>جنيه {p.deal==="للإيجار"?"شهرياً":p.priceUnit==="سعر المتر"?"للمتر":"إجمالي"}</small><span style={{display:"block",marginTop:5,fontSize:9,fontWeight:800,color:p.paymentMethod==="تقسيط"?"#a2761f":"#53708b"}}>{p.paymentMethod||"كاش"}{p.paymentMethod==="تقسيط"&&p.installmentYears?` · ${p.installmentYears} سنة`:""}</span></strong><a className="details-link" href={`/listing/${p.id}`}>تفاصيل العقار ←</a></div></div>
           </article>)}
         </div>
@@ -127,7 +127,7 @@ export default function Home() {
         {loadingListings && <p className="sample-warning">جارٍ تحميل العقارات المنشورة...</p>}
       </section>
 
-      <section className="map-section" id="map"><div className="wrap map-layout"><div className="map-copy"><span className="eyebrow">اعرف منطقتك</span><h2>خريطة حدائق الأهرام من Google</h2><p>استكشف البوابات والشوارع والخدمات المحيطة بالعقار بسهولة. حرّك الخريطة وكبّرها أو افتحها مباشرةً في خرائط Google للحصول على الاتجاهات.</p><a className="primary-btn" href="https://www.google.com/maps/search/?api=1&query=Hadayek+Al+Ahram%2C+Giza%2C+Egypt" target="_blank" rel="noreferrer">افتح الخريطة على Google Maps ↗</a></div><div className="google-map-frame"><iframe title="خريطة حدائق الأهرام على Google Maps" src="https://www.google.com/maps?q=Hadayek+Al+Ahram%2C+Giza%2C+Egypt&output=embed" loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen /></div></div></section>
+      <section className="map-section" id="map"><div className="wrap map-layout"><div className="map-copy"><span className="eyebrow">اعرف منطقتك</span><h2>خريطة حدائق الأهرام من Google</h2><p>استكشف البوابات والشوارع والخدمات المحيطة بالعقار بسهولة. حرّك الخريطة وكبّرها أو افتحها مباشرةً في خرائط Google للحصول على الاتجاهات.</p><a className="primary-btn" href="https://www.google.com/maps/search/?api=1&query=Hadayek+Al+Ahram%2C+Giza%2C+Egypt" target="_blank" rel="noreferrer">افتح الخريطة على Google Maps ↗</a></div><div className="google-map-frame"><iframe title="خريطة حدائق الأهرام على Google Maps" src="https://www.google.com/maps?q=Hadayek+Al+Ahram%2C+Giza%2C+Egypt&output=embed" loading="lazy" loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen /></div></div></section>
 
       <section className="owner-cta"><div className="wrap owner-inner"><div><span className="eyebrow light">عندك عقار؟</span><h2>اعرض عقارك للباحثين عن بيتهم الجديد</h2><p>سواء كنت مالك أو وسيط عقاري، ابدأ طلب إضافة إعلانك.</p></div><button onClick={()=>{setSubmitted(false);setShowForm(true);}}>＋ أضف إعلانك الآن</button></div></section>
       <footer><div className="wrap footer-inner"><a className="logo" href="#"><img className="logo-image" src="/logo-mark.svg" alt="" /><span><b>حدائق الأهرام</b><small>منطقتك.. عقارك.. اختيارك</small></span></a><p>منصة عقارية متخصصة في حدائق الأهرام — عقارك بالقرب من الأهرامات.</p><span>© {new Date().getFullYear()} جميع الحقوق محفوظة</span></div></footer>
