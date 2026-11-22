@@ -156,7 +156,7 @@ export default function AdminPage() {
     const activeProfiles = profiles.filter(profile=>profile.is_active!==false).length;
     return {thisMonth, averagePrice, activeProfiles};
   }, [listings, profiles]);
-\n  const visibleProfiles = useMemo(() => profiles.filter(profile => {
+  const visibleProfiles = useMemo(() => profiles.filter(profile => {
     const haystack = [profile.full_name, profile.phone, profile.account_type, profile.email].join(" ").toLowerCase();
     return haystack.includes(search.trim().toLowerCase());
   }), [profiles, search]);
