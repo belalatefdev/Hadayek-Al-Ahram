@@ -325,3 +325,9 @@ footer{padding-top:25px;padding-bottom:25px}
 .clear-search-btn:hover{border-color:#d9ad43;color:#102b4d;background:#fffaf0;}
 @media(max-width:1000px){.search-box{grid-template-columns:repeat(3,minmax(0,1fr));}.search-text{grid-column:span 2;}}
 @media(max-width:700px){.search-box{grid-template-columns:repeat(2,minmax(0,1fr));}.search-text{grid-column:1/-1;}.clear-search-btn{grid-column:1/-1;height:40px;}}
+
+/* Search results toolbar and saved-favorites toggle */
+.result-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.favorites-filter{border:1px solid #e5d7b4;background:#fffaf0;color:#9a772c;border-radius:22px;padding:8px 12px;font-size:11px;font-weight:900;cursor:pointer}
+.favorites-filter.active{background:#102b4d;color:#fff;border-color:#102b4d}
+@media(max-width:700px){.result-tools{gap:7px}.favorites-filter{font-size:9px;padding:7px 10px}}
