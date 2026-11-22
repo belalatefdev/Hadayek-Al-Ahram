@@ -20,10 +20,23 @@ export default function SupportChat() {
     setError("");
     setBusy(true);
     try {
-      const res = await fetch("/api/support-chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: next }) });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "تعذر الحصول على رد");
-      setMessages((old) => [...old, { role: "assistant", content: data.reply }]);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      let data;
+      try {
+        const res = await fetch("/api/support-chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages: next }),
+          signal: controller.signal,
+        });
+        data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || "تعذر الحصول على رد. حاول مرة أخرى.");
+        if (typeof data.reply !== "string" || !data.reply.trim()) throw new Error("لم يصل رد من الدعم. حاول مرة أخرى.");
+        setMessages((old) => [...old, { role: "assistant", content: data.reply }]);
+      } finally {
+        clearTimeout(timeoutId);
+      }
     } catch (e) {
       setError(e.message || "حصلت مشكلة. حاول تاني.");
     } finally {
