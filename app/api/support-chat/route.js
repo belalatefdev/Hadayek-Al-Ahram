@@ -13,6 +13,7 @@ const MAX_MESSAGES = 12;
 const MAX_MESSAGE_CHARS = 1500;
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 8;
+const RATE_LIMIT_MAX_KEYS = 1000;
 // Best-effort per-instance limit; production-wide limits should use a shared store.
 const rateLimitStore = globalThis.__hadayekSupportRateLimit || (globalThis.__hadayekSupportRateLimit = new Map());
 
@@ -24,6 +25,10 @@ function rateLimit(request) {
   }
   const entry = rateLimitStore.get(key);
   if (!entry || now - entry.start >= RATE_LIMIT_WINDOW_MS) {
+    if (rateLimitStore.size >= RATE_LIMIT_MAX_KEYS) {
+      const oldestKey = rateLimitStore.keys().next().value;
+      if (oldestKey !== undefined) rateLimitStore.delete(oldestKey);
+    }
     rateLimitStore.set(key, { start: now, count: 1 });
     return true;
   }
@@ -45,9 +50,25 @@ export async function POST(request) {
     if (contentLength > MAX_REQUEST_BYTES) {
       return NextResponse.json({ error: "المحادثة طويلة جدًا. قلل الرسائل وحاول مرة أخرى." }, { status: 413 });
     }
-    const rawBody = await request.text();
-    if (new TextEncoder().encode(rawBody).length > MAX_REQUEST_BYTES) {
-      return NextResponse.json({ error: "المحادثة طويلة جدًا. قلل الرسائل وحاول مرة أخرى." }, { status: 413 });
+    let rawBody = "";
+    if (request.body) {
+      const reader = request.body.getReader();
+      const chunks = [];
+      let totalBytes = 0;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        totalBytes += value.byteLength;
+        if (totalBytes > MAX_REQUEST_BYTES) {
+          await reader.cancel();
+          return NextResponse.json({ error: "المحادثة طويلة جدًا. قلل الرسائل وحاول مرة أخرى." }, { status: 413 });
+        }
+        chunks.push(value);
+      }
+      const merged = new Uint8Array(totalBytes);
+      let offset = 0;
+      for (const chunk of chunks) { merged.set(chunk, offset); offset += chunk.byteLength; }
+      rawBody = new TextDecoder().decode(merged);
     }
     let body;
     try { body = JSON.parse(rawBody); } catch {
