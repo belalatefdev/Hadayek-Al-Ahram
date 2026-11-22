@@ -79,7 +79,7 @@ export default function Home() {
     <main>
       <div className="topline"><div className="wrap topline-inner"><span>★ منصتك العقارية من قلب الجيزة</span><span>بيع • شراء • إيجار</span></div></div>
       <header className="header"><div className="wrap header-inner">
-        <a className="logo" href="#"><img className="logo-image" src="/logo-mark.svg" alt="" loading="eager" decoding="async" /><span><b>حدائق الأهرام</b><small>عقارك بالقرب من الأهرامات</small></span></a>
+        <a className="logo" href="#"><svg className="logo-image" viewBox="0 0 160 120" role="img" aria-label="شعار حدائق الأهرام" xmlns="http://www.w3.org/2000/svg"><path d="M12 80 43 29 74 80Z" fill="#d9ad43"/><path d="M42 80 79 13 116 80Z" fill="#e5b54b"/><path d="M93 80 119 39 145 80Z" fill="#c18b2c"/><path d="M15 84H146" stroke="#d4a13b" strokeWidth="4" strokeLinecap="round"/><path d="M68 84V49L99 25 130 49V84" fill="#102b4b" stroke="#102b4b" strokeWidth="4" strokeLinejoin="round"/><path d="M86 84V62H111V84" fill="#e3b348"/><path d="M76 53H84V61H76ZM114 53H122V61H114Z" fill="#e3b348"/><path d="M20 93H140" stroke="#d3a13b" strokeWidth="2.5" strokeLinecap="round"/></svg><span><b>حدائق الأهرام</b><small>عقارك بالقرب من الأهرامات</small></span></a>
         <nav><a href="#home">الرئيسية</a><a href="#listings">عقارات للبيع</a><a href="#listings">عقارات للإيجار</a><a href="#map">الخريطة</a></nav>
         <div style={{display:"flex",alignItems:"center",gap:10}}><a href="/account" style={{fontSize:11,fontWeight:800,color:"#52657d"}}>حسابي</a><button className="add-top" onClick={() => { setSubmitted(false); setFormDealType(""); setPriceUnit("إجمالي العقار"); setImagePreviews([]); setListingStep(0); setShowForm(true); }}>＋ أضف عقارك</button></div>
       </div></header>
