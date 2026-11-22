@@ -85,7 +85,8 @@ export default function ListingDetails() {
         </div>
       </div>
 <small className="property-safety">نصيحة: عاين العقار بنفسك وتأكد من صحة المستندات والبيانات قبل إتمام أي اتفاق.</small></aside>
-        </div>
+</div>
+        {phone&&<div className="property-mobile-contact"><a href={`https://wa.me/${whatsappPhone}?text=${whatsappMessage}`} target="_blank" rel="noreferrer">واتساب المعلن</a><a href={`tel:${listing.phone}`}>اتصال مباشر</a></div>}
       </>}
     </div>
     {lightbox&&<div className="gallery-lightbox" onClick={()=>setLightbox(false)}><button className="lightbox-close" onClick={()=>setLightbox(false)}>×</button><img className="lightbox-image" src={images[activeImage]} alt={listing?.title||"صورة العقار"} onClick={e=>e.stopPropagation()}/>{images.length>1&&<><button className="lightbox-arrow lightbox-left" onClick={e=>{e.stopPropagation();changeImage(-1)}}>›</button><button className="lightbox-arrow lightbox-right" onClick={e=>{e.stopPropagation();changeImage(1)}}>‹</button></>}</div>}
