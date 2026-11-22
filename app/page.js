@@ -3,14 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
 
-const sampleListings = [
-  { id: 1, title: "شقة ١٤٠ متر تشطيب سوبر لوكس", gate: "البوابة الأولى", kind: "شقة", deal: "للبيع", price: 2450000, area: 140, rooms: 3, baths: 2, image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=640&q=70", tag: "اختيار مميز" },
-  { id: 2, title: "شقة للإيجار قريبة من الخدمات", gate: "البوابة الثانية", kind: "شقة", deal: "للإيجار", price: 14000, area: 125, rooms: 2, baths: 1, image: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=640&q=70", tag: "جديد" },
-  { id: 3, title: "دوبلكس بحديقة خاصة", gate: "البوابة الرابعة", kind: "دوبلكس", deal: "للبيع", price: 4800000, area: 230, rooms: 4, baths: 3, image: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=640&q=70", tag: "مساحة كبيرة" },
-  { id: 4, title: "شقة عائلية بإطلالة مفتوحة", gate: "البوابة الخامسة", kind: "شقة", deal: "للبيع", price: 1980000, area: 132, rooms: 3, baths: 2, image: "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=640&q=70", tag: "فرصة" },
-  { id: 5, title: "محل تجاري بموقع حيوي", gate: "البوابة الأولى", kind: "تجاري", deal: "للإيجار", price: 18000, area: 75, rooms: 0, baths: 1, image: "https://images.unsplash.com/photo-1600607687644-c7171b42498f?auto=format&fit=crop&w=640&q=70", tag: "موقع مميز" },
-  { id: 6, title: "شقة واسعة بالقرب من البوابة", gate: "البوابة الثالثة", kind: "شقة", deal: "للإيجار", price: 16000, area: 155, rooms: 3, baths: 2, image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=640&q=70", tag: "جديد" },
-];
 const gates = ["كل البوابات", "البوابة الأولى", "البوابة الثانية الجديدة", "البوابة الثانية القديمة", "البوابة الثالثة القديمة", "البوابة الثالثة الجديدة", "البوابة الرابعة"];
 const money = (n) => new Intl.NumberFormat("ar-EG").format(n);
 
