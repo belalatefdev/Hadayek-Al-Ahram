@@ -22,5 +22,7 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: mobile/package.json
-      - run: npm install
-      - run: npx expo export --platform android
+      - name: Install dependencies with peer conflict workaround
+        run: npm install --legacy-peer-deps
+      - name: Expo Android export smoke test
+        run: npx expo export --platform android
