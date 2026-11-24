@@ -21,6 +21,13 @@ jobs:
       - name: Install dependencies
         working-directory: mobile
         run: npm install
+      - name: Configure Expo preview environment
+        working-directory: mobile
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          npx eas-cli env:set --name EXPO_PUBLIC_SUPABASE_URL --value https://joziymewhmqtqrftblgp.supabase.co --environment preview --visibility plaintext --non-interactive
+          npx eas-cli env:set --name EXPO_PUBLIC_SUPABASE_ANON_KEY --value sb_publishable_XT7Q9bFXUmHAsjaP7RwJJQ_Wsq0iEsP --environment preview --visibility plaintext --non-interactive
       - name: Run Expo EAS Android build
         working-directory: mobile
         env:
