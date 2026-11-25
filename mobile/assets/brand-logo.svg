@@ -1,11 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
-  <rect width="1024" height="1024" rx="220" fill="#102B4D"/>
-  <circle cx="512" cy="512" r="355" fill="none" stroke="#D9AD43" stroke-width="24" opacity=".22"/>
-  <path d="M240 650 L512 275 L784 650 Z" fill="#D9AD43"/>
-  <path d="M350 650 L512 423 L674 650 Z" fill="#102B4D"/>
-  <path d="M185 690 H839 V760 H185 Z" fill="#D9AD43"/>
-  <path d="M285 760 H739 V812 H285 Z" fill="#D9AD43" opacity=".9"/>
-  <path d="M470 635 V545 H554 V635" fill="#D9AD43"/>
-  <path d="M438 545 L512 472 L586 545" fill="none" stroke="#D9AD43" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="512" cy="512" r="12" fill="#D9AD43"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" role="img" aria-labelledby="title">
+<title id="title">شعار حدائق الأهرام</title>
+<defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f3d27b"/><stop offset="1" stop-color="#b88422"/></linearGradient></defs>
+<path d="M12 80 43 29 74 80Z" fill="url(#gold)"/><path d="M42 80 79 13 116 80Z" fill="#e5b54b"/><path d="M93 80 119 39 145 80Z" fill="#c18b2c"/>
+<path d="M15 84H146" stroke="#d4a13b" stroke-width="4" stroke-linecap="round"/>
+<path d="M68 84V49L99 25 130 49V84" fill="#102b4b" stroke="#102b4b" stroke-width="4" stroke-linejoin="round"/>
+<path d="M86 84V62H111V84" fill="#e3b348"/><path d="M76 53H84V61H76ZM114 53H122V61H114Z" fill="#e3b348"/>
+<path d="M20 93H140" stroke="#d3a13b" stroke-width="2.5" stroke-linecap="round"/><path d="M34 100H126" stroke="#102b4b" stroke-width="2" opacity=".35" stroke-linecap="round"/>
 </svg>
