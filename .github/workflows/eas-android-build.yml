@@ -8,9 +8,15 @@ on:
       - "mobile/**"
       - ".github/workflows/eas-android-build.yml"
 
+# Avoid multiple cloud builds competing for the same EAS queue.
+concurrency:
+  group: eas-android-apk
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -20,7 +26,8 @@ jobs:
           node-version: 22
       - name: Install dependencies
         working-directory: mobile
-        run: npm install
+        run: npm install --no-audit --no-fund
+        timeout-minutes: 15
       - name: Configure Expo preview environment
         working-directory: mobile
         env:
@@ -28,8 +35,10 @@ jobs:
         run: |
           npx eas-cli env:set --name EXPO_PUBLIC_SUPABASE_URL --value https://joziymewhmqtqrftblgp.supabase.co --environment preview --visibility plaintext --non-interactive
           npx eas-cli env:set --name EXPO_PUBLIC_SUPABASE_ANON_KEY --value sb_publishable_XT7Q9bFXUmHAsjaP7RwJJQ_Wsq0iEsP --environment preview --visibility plaintext --non-interactive
+        timeout-minutes: 10
       - name: Run Expo EAS Android build
         working-directory: mobile
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: npx eas-cli build --platform android --profile preview --non-interactive
+        timeout-minutes: 45
