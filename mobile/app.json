@@ -13,7 +13,11 @@
       "bundleIdentifier": "com.hadayek.alahram"
     },
     "android": {
-      "package": "com.hadayek.alahram"
+      "package": "com.hadayek.alahram",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#102B4D"
+      }
     },
     "plugins": [
       "expo-router",
@@ -33,6 +37,7 @@
       "eas": {
         "projectId": "46f658ea-fc20-4d9f-a0cf-89e02550e06c"
       }
-    }
+    },
+    "icon": "./assets/icon.png"
   }
 }
