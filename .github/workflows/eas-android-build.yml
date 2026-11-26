@@ -36,6 +36,9 @@ jobs:
           npx eas-cli env:set --name EXPO_PUBLIC_SUPABASE_URL --value https://joziymewhmqtqrftblgp.supabase.co --environment preview --visibility plaintext --non-interactive
           npx eas-cli env:set --name EXPO_PUBLIC_SUPABASE_ANON_KEY --value sb_publishable_XT7Q9bFXUmHAsjaP7RwJJQ_Wsq0iEsP --environment preview --visibility plaintext --non-interactive
         timeout-minutes: 10
+      - name: Generate app icons from brand SVG
+        working-directory: mobile
+        run: npm run generate-icons
       - name: Run Expo EAS Android build
         working-directory: mobile
         env:
