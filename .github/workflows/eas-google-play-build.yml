@@ -1,0 +1,29 @@
+name: Build Android App Bundle for Google Play
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        working-directory: mobile
+        run: npm install --no-audit --no-fund
+        timeout-minutes: 15
+      - name: Generate branded app icons
+        working-directory: mobile
+        run: npm run generate-icons
+      - name: Build Play Store AAB with EAS
+        working-directory: mobile
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: npx eas-cli build --platform android --profile store --non-interactive
+        timeout-minutes: 45
